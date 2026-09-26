@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<title>Garden Games_V2.1</title>
+<title>Garden Games_V2.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap">
@@ -468,7 +468,7 @@
     <header class="home-hero">
       <div>
         <p class="eyebrow">a little garden of games</p>
-        <h1>Garden Games<span class="v">_V2.1</span></h1>
+        <h1>Garden Games<span class="v">_V2.2</span></h1>
         <p class="lede">Pick a game. Claude is always ready to play, and everything you do is saved on this device.</p>
       </div>
       <svg class="sprig" viewBox="0 0 132 90" aria-hidden="true">
@@ -2979,6 +2979,7 @@ async function modal(p, title, html, choices, botPick, wide) {
   return v;
 }
 function modalLocal(p, title, html, choices, botPick, wide) {
+  MC.dataset.mirror = ''; mirrorBox = null;
   return new Promise(res => {
     MC.className = 'gl-card' + (wide ? ' wide' : '');
     MC.innerHTML = (p ? kicker(p) + artHtml() : '') + `<h3>${title}</h3><div class="body">${html || ''}</div><div class="choices"></div>`;
@@ -3207,6 +3208,7 @@ async function doCasino(p) {
   if (G.log[0] !== first) { emit({ t: 'modal', pid: p.id, title: 'Casino result', html: `<p>${esc(G.log[0])}</p>`, art: 'K', wide: false, choices: [{ label: 'OK', note: '' }] }); emit({ t: 'pick', k: 0 }); }
 }
 function casinoHuman(p) {
+  MC.dataset.mirror = ''; mirrorBox = null;
   return new Promise(res => {
     let game = 'coin', bet = 5, color = 0, played = false;
     const games = { coin: ['Coin toss', '50% chance. Win your bet.'], wheel: ['Petal wheel', 'Pick 1 of 4 colors. Win 3× your bet.'], jackpot: ['Clover jackpot', '1 in 10 chance. Win 8× your bet.'] };
@@ -3330,6 +3332,7 @@ function drawSpark(c, hist) {
   g.beginPath(); g.arc(X(n - 1), Y(hist[n - 1]), 3, 0, 7); g.fillStyle = up ? '#4E9A6B' : '#C9657F'; g.fill();
 }
 function openMarket(p) {
+  MC.dataset.mirror = ''; mirrorBox = null;
   ART = 'M';
   return new Promise(res => {
     const paint = () => {
@@ -3581,6 +3584,7 @@ function pushState() { if (!(G && G.online && ONL)) return; G.seq = (G.seq || 0)
 let awayTimer = 0, awayFor = null;
 function maybeAct() {
   if (!(G && G.online && ONL) || G.over || busy) return;
+  if (evBusy) { setTimeout(maybeAct, 250); return; }
   const p = G.players[G.turn], ctrl = controllerOf(p);
   // a returning player takes their seat back from the stand-in bot
   if (actingHost() === NET.key && p.away && ONL.presence[p.owner]) { p.away = false; log(`${p.name} is back!`); pushState(); renderAll(); }
@@ -3615,7 +3619,9 @@ async function runEvents() {
   }
   evBusy = false;
 }
-let mirrorBox = null;
+let mirrorBox = null, evGen = 0;
+const isMirror = () => MC.dataset.mirror === '1';
+function closeMirror() { if (isMirror() && !MB.hidden) MB.hidden = true; MC.dataset.mirror = ''; mirrorBox = null; }
 async function playEvent(ev) {
   const p = ev.pid >= 0 && G ? G.players[ev.pid] : null;
   if (ev.t === 'status') renderTurn(ev.text);
@@ -3627,15 +3633,15 @@ async function playEvent(ev) {
     const who = p ? `<p class="mirror-note">${esc(p.name)}${p.bot ? '' : ev.choices.length > 1 ? ' is choosing…' : ''}</p>` : '';
     MC.innerHTML = (p ? kicker(p) + artHtml() : '') + `<h3>${ev.title}</h3><div class="body">${ev.html || ''}</div>${ev.choices.length > 1 && p && !p.bot ? who : ''}<div class="choices"></div>`;
     paintKick(); if (p) paintArt(); MC.querySelectorAll('.body canvas[data-logo]').forEach(c => logoTo(c, c.dataset.logo, 34));
-    mirrorBox = MC.querySelector('.choices');
+    mirrorBox = MC.querySelector('.choices'); MC.dataset.mirror = '1';
     (ev.choices || []).forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.className = 'choice'; b.disabled = true; b.innerHTML = `<b>${c.label}</b>${c.note ? `<span>${c.note}</span>` : ''}`; mirrorBox.appendChild(b); });
     MB.hidden = false;
   }
   else if (ev.t === 'pick') {
     if (mirrorBox && mirrorBox.children[ev.k]) mirrorBox.children[ev.k].classList.add('picked');
-    await sleep(900 * PACE[pace].card); MB.hidden = true; mirrorBox = null;
+    const g0 = evGen; await sleep(900 * PACE[pace].card); if (g0 === evGen) closeMirror();
   }
-  else if (ev.t === 'close') { MB.hidden = true; mirrorBox = null; }
+  else if (ev.t === 'close') closeMirror();
 }
 
 /* ---------- room state from the server ---------- */
@@ -3645,7 +3651,7 @@ function onRoomState(str) {
   if (G && G.online && G.room === ONL.code && (S.seq || 0) <= (G.seq || 0)) return;
   const first = !(G && G.online && G.room === ONL.code);
   if (acting) return; // my own turn is in progress; my write will follow
-  G = S; ONL.seq = G.seq; evQueue = []; MB.hidden = true;
+  G = S; ONL.seq = G.seq; evQueue = []; evGen++; closeMirror();
   if (first || $('gl-game').hidden) { $('gl-lobby').hidden = true; showGame(); }
   renderAll();
   follow(G.players[G.turn]);
