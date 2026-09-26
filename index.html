@@ -6,6 +6,9 @@
 <meta name="description" content="Garden Games: Omok Garden and Garden of Life, little hand-drawn games you can play against Claude or with friends.">
 <meta name="theme-color" content="#FCF8F5">
 <link rel="manifest" href="manifest.webmanifest">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,7 +24,7 @@
 </style>
 </head>
 <body>
-<title>Garden Games_V1.1</title>
+<title>Garden Games_V2.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap">
@@ -204,6 +207,32 @@
   @media (prefers-reduced-motion:reduce){.chat-panel.drawer,.notes-open .chat-panel.drawer,.notes-pop,.notes-tab{transition:none}}
   @media (prefers-reduced-motion:reduce){.bubble.typing span{animation:none;opacity:.6}.chat{scroll-behavior:auto}}
   @media (prefers-reduced-motion:reduce){.die.rolling{animation:none}.sketch-btn{transition:none}}
+
+  /* online (two players) */
+  #modeSeg button.na{opacity:.55}
+  #onlineCard{display:flex;overflow:auto;z-index:5}
+  #onlineCard .card{margin:auto;max-width:340px}
+  .ol-field{display:grid;gap:2px;text-align:left;font-size:13px;color:var(--ink-soft);margin:0 0 10px}
+  .ol-input{font:inherit;font-size:16px;color:var(--ink);background:var(--paper-2);border:1.4px solid var(--ink);padding:5px 10px;
+    border-radius:10px 6px 12px 7px/7px 12px 6px 10px;width:100%;box-sizing:border-box;min-width:0}
+  .ol-input:focus-visible{outline:2px dashed var(--rose-deep);outline-offset:2px}
+  .ol-or{font-family:var(--display);font-size:17px;color:var(--ink-soft);margin:10px 0 6px;display:flex;align-items:center;gap:8px}
+  .ol-or::before,.ol-or::after{content:"";flex:1;border-top:1px dashed var(--line)}
+  .ol-join{display:flex;gap:8px;margin:0}
+  .ol-join .ol-input{text-transform:uppercase;letter-spacing:.06em}
+  .ol-join .sketch-btn{flex:none}
+  #onlineCard .ol-err{color:var(--rose-deep);min-height:1.2em;margin:8px 0 0;font-size:13.5px}
+  #onlineCard .ol-code{font-family:var(--display);font-weight:700;font-size:44px;letter-spacing:.05em;color:var(--ink);margin:4px 0 10px;line-height:1}
+  #onlineCard .ol-link{font-size:12px;word-break:break-all;-webkit-user-select:all;user-select:all;margin:10px 0 8px}
+  #onlineCard .ol-wait{font-family:var(--display);font-size:20px;color:var(--ink);margin:0 0 6px}
+  .onlinebar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:-2px 0 10px}
+  .ol-room{font-family:var(--display);font-size:19px;line-height:1.1;flex:1 1 auto;min-width:0}
+  .ol-room b{letter-spacing:.04em}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--sage-deep);border:1.3px solid var(--ink);margin:0 4px 0 2px;vertical-align:1px}
+  .dot.off{background:transparent;border-color:var(--ink-soft)}
+  .onlinebar .sketch-btn{font-size:17px;padding:4px 14px 3px}
+  @media (max-width:430px){#modeSeg button{padding:3px 9px;font-size:15px}}
+  @media (max-width:820px){#onlineCard{padding-right:40px}}
 
   /* ---------- hub + shared ---------- */
   .topnav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
@@ -408,6 +437,30 @@
     .games{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px}
     .home-hero h1{font-size:112px}
   }
+
+  /* ---------- V2 online ---------- */
+  .online-panel{margin-bottom:18px;background:linear-gradient(135deg,rgba(248,230,168,.35),rgba(216,206,241,.3))}
+  .ol-lede{margin:0 0 12px;font-size:14px;color:var(--ink-soft)}
+  .ol-me{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .ol-me canvas{width:44px;height:44px;flex:none}
+  .ol-me input,.ol-me select,.ol-actions input{font:inherit;font-size:15px;color:var(--ink);background:var(--paper-2);border:1.3px solid var(--line);
+    border-radius:10px 6px 11px 7px/7px 11px 6px 10px;padding:7px 10px;min-width:0}
+  .ol-me input{flex:1 1 160px}
+  .ol-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .ol-actions input{flex:1 1 170px;text-transform:uppercase;letter-spacing:.06em}
+  .ol-or{font-family:var(--display);font-size:18px;color:var(--ink-soft)}
+  .ol-note{margin:0;font-size:14px;color:var(--ink-soft)}
+  .lobby .lob-code{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .lobby .lob-code span{font-size:13px;color:var(--ink-soft)}
+  .lobby .lob-code b{font-family:var(--display);font-size:48px;letter-spacing:.06em;line-height:1}
+  .lob-share{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .lob-share code{font-size:12.5px;background:var(--paper-2);border:1px dashed var(--line);border-radius:8px;padding:5px 8px;overflow-wrap:anywhere;user-select:all}
+  .lob-count{margin:4px 0;font-family:var(--display);font-size:18px}
+  .lob-wait{font-size:14px;color:var(--ink-soft);margin:10px 0 0}
+  .pl .dot{font-size:12px;padding:1px 8px;border-radius:999px}
+  .pl .dot.on,.pl small.on{background:rgba(78,154,107,.16);color:#3F7F58}
+  .pl .dot.off,.pl small.off{background:rgba(201,101,127,.14);color:#A8506A}
+  .mirror-note{margin:0;font-family:var(--display);font-size:18px;color:var(--rose-deep)}
 </style>
 
 <div class="view" id="view-home">
@@ -415,7 +468,7 @@
     <header class="home-hero">
       <div>
         <p class="eyebrow">a little garden of games</p>
-        <h1>Garden Games<span class="v">_V1.1</span></h1>
+        <h1>Garden Games<span class="v">_V2.1</span></h1>
         <p class="lede">Pick a game. Claude is always ready to play, and everything you do is saved on this device.</p>
       </div>
       <svg class="sprig" viewBox="0 0 132 90" aria-hidden="true">
@@ -473,7 +526,7 @@
 
   <main class="layout">
     <section>
-      <div class="modebar"><span class="seg" id="modeSeg" role="group" aria-label="Game mode"><button type="button" data-mode="play">Play Claude</button><button type="button" data-mode="watch">Watch Claude vs Claude</button></span></div>
+      <div class="modebar"><span class="seg" id="modeSeg" role="group" aria-label="Game mode"><button type="button" data-mode="play">Play Claude</button><button type="button" data-mode="watch">Watch Claude vs Claude</button><button type="button" data-mode="online" id="onlineModeBtn">Play online</button></span></div>
       <div class="strip">
         <span id="status" aria-live="polite">Roll the dice to see who starts.</span>
         <button class="sketch-btn rose" id="nextBtn" hidden>Next game</button>
@@ -482,6 +535,11 @@
         <button class="sketch-btn rose" id="wPause" type="button">Pause</button>
         <button class="sketch-btn quiet" id="wStep" type="button">Next move</button>
         <span class="seg" id="speedSeg" role="group" aria-label="Speed"><button type="button" data-s="slow">Slow</button><button type="button" data-s="normal">Normal</button><button type="button" data-s="fast">Fast</button></span>
+      </div>
+      <div class="onlinebar" id="onlineBar" hidden>
+        <span class="ol-room" id="olRoomInfo"></span>
+        <button class="sketch-btn quiet" id="olCopy2" type="button">Copy link</button>
+        <button class="sketch-btn quiet" id="olLeave" type="button">Leave room</button>
       </div>
       <p id="note"></p>
       <div class="board-wrap">
@@ -496,6 +554,27 @@
             </div>
             <p id="rollMsg"></p>
             <button class="sketch-btn" id="rollBtn">Roll the dice</button>
+          </div>
+        </div>
+        <div class="overlay" id="onlineCard" hidden>
+          <div class="card">
+            <div id="olMenu">
+              <h2>Play a friend</h2>
+              <p>Host a room and send the link, or type your friend’s room code.</p>
+              <label class="ol-field"><span>Your name</span><input class="ol-input" id="olName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
+              <button class="sketch-btn rose" id="olHost" type="button">Host a room</button>
+              <div class="ol-or">or join one</div>
+              <form class="ol-join" id="olJoinForm"><input class="ol-input" id="olCode" placeholder="BLOOM-42" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code"><button class="sketch-btn" id="olJoin" type="submit">Join</button></form>
+              <p class="ol-err" id="olErr" role="alert"></p>
+            </div>
+            <div id="olWait" hidden>
+              <h2>Your room</h2>
+              <p class="ol-code" id="olCodeBig"></p>
+              <button class="sketch-btn" id="olCopy" type="button">Copy link</button>
+              <p class="ol-link" id="olLink"></p>
+              <p class="ol-wait" id="olWaitMsg">Waiting for a friend…</p>
+              <button class="sketch-btn quiet" id="olLeave2" type="button">Leave room</button>
+            </div>
           </div>
         </div>
         <div class="notes-clip" id="notesClip"></div>
@@ -529,19 +608,21 @@
           <div class="play-only"><dt>Avg your moves</dt><dd id="stAvgYou">–</dd><small>per game, yours only</small></div>
         </dl>
         <div class="meta"><span id="gameNo">Game 1</span><span id="moveNo">Move 0</span></div>
-        <p class="saved">Saved on this device. Unfinished games are not counted.</p>
+        <p class="saved" id="savedNote">Saved on this device. Unfinished games are not counted.</p>
       </div>
       <div class="panel">
         <p class="label">House rules</p>
         <ul class="rules">
           <li>Exactly five in a row wins: across, down, or diagonal.</li>
           <li>Six or more in a row does not count.</li>
+          <li>No double threes: you can’t place a piece that makes two open threes at once (threes with both ends free, including broken ones like X X _ X). Double fours and a four plus a three are fine, and a move that makes five always wins. This applies to everyone, Claude included.</li>
           <li>Game 1 starts with a dice roll. Higher number goes first; a tie rolls again.</li>
           <li>After each game, the loser starts the next one. A draw goes back to the dice.</li>
           <li>You play flowers, Claude plays monstera leaves. You can change your flower between games.</li>
           <li>The newest piece wiggles until the other player moves, so you always see the last move.</li>
           <li>Claude looks several moves ahead and hunts for chains of fours.</li>
           <li>Watch mode: Claude Ginkgo (golden leaves) plays Claude Monstera, both on hard. Same rules: dice for game 1, then the loser starts. Their wins go in a separate tally.</li>
+          <li>Play online: host a room and send the link, or join with a code. Same rules: dice for game 1, then the loser starts. If you both picked the same flower, the guest plays ginkgo leaves. Online games get their own room score.</li>
           <li>Columns are A–O and rows 1–15, so move notes can name each spot.</li>
         </ul>
       </div>
@@ -565,6 +646,25 @@
     </header>
 
     <section id="gl-setup" class="gl-setup">
+      <div class="panel online-panel" id="gl-online" hidden>
+        <p class="label">Play online with friends</p>
+        <p class="ol-lede">Everyone plays on their own phone or computer. One person hosts a room and shares the code or link.</p>
+        <div id="ol-form">
+          <div class="ol-me">
+            <canvas id="ol-icon" aria-hidden="true"></canvas>
+            <input type="text" id="ol-name" maxlength="18" placeholder="Your name" aria-label="Your name">
+            <select id="ol-critter" aria-label="Your critter"></select>
+          </div>
+          <div class="ol-actions">
+            <button class="sketch-btn rose" id="ol-host" type="button">Host a room</button>
+            <span class="ol-or">or</span>
+            <input type="text" id="ol-code" maxlength="12" placeholder="Room code, e.g. BLOOM-42" aria-label="Room code" autocapitalize="characters">
+            <button class="sketch-btn" id="ol-join" type="button">Join</button>
+          </div>
+          <p class="setup-msg" id="ol-msg" aria-live="polite"></p>
+        </div>
+        <p class="ol-note" id="ol-note" hidden>Online play works on the website version of Garden Games. Pass-and-play below works everywhere.</p>
+      </div>
       <div class="panel resume" id="gl-resume" hidden>
         <span id="gl-resume-txt">You have a game in progress.</span>
         <div class="setup-actions" style="margin:0"><button class="sketch-btn rose" id="gl-continue" type="button">Continue game</button><button class="sketch-btn quiet" id="gl-discard" type="button">Discard it</button></div>
@@ -588,6 +688,23 @@
           <li>Trade garden stocks before you spin. Prices move every round, with the odd boom or crash.</li>
           <li>At retirement: 1 Bloom per $20k (debt costs extra), 10 for a spouse, 6 per kid, 3 per pet, your home, 5 for a degree, 2 per promotion, plus life Blooms and retirement bonuses.</li>
         </ul>
+      </div>
+    </section>
+
+    <section id="gl-lobby" class="gl-setup" hidden>
+      <div class="panel lobby">
+        <p class="label">Online room</p>
+        <div class="lob-code"><span>Room code</span><b id="gl-lob-code">—</b></div>
+        <div class="lob-share"><button class="sketch-btn" id="gl-lob-copy" type="button">Copy link</button><code id="gl-lob-link"></code></div>
+        <p class="lob-count" id="gl-lob-count"></p>
+        <div id="gl-lob-list"></div>
+        <div class="setup-actions">
+          <button class="sketch-btn quiet" id="gl-lob-addbot" type="button">Add a Claude bot</button>
+          <button class="sketch-btn quiet" id="gl-lob-rmbot" type="button">Remove a bot</button>
+          <button class="sketch-btn rose" id="gl-lob-start" type="button">Start game</button>
+        </div>
+        <p class="lob-wait" id="gl-lob-wait" aria-live="polite"></p>
+        <div class="setup-actions"><button class="sketch-btn quiet" id="gl-lob-leave" type="button">Leave room</button></div>
       </div>
     </section>
 
@@ -632,6 +749,140 @@
   <div class="gl-overlay" id="gl-modal" hidden><div class="gl-card" id="gl-card" role="dialog" aria-modal="true"></div></div>
 </div>
 
+<script>
+/* ================= ONLINE (shared by both games) =================
+   Firebase Realtime Database when the Firebase SDK is loaded (website build).
+   ?net=local uses a same-browser test backend (localStorage + BroadcastChannel)
+   so two tabs can play each other offline. ?as=2 gives a tab its own identity. */
+(() => {
+  const params = new URLSearchParams(location.search);
+  const FB_CONFIG = {
+    apiKey: "AIzaSyBzGrbbkw62jAVPgTA7z5-O1e57G5UQMIo",
+    authDomain: "garden-games-bd8a8.firebaseapp.com",
+    databaseURL: "https://garden-games-bd8a8-default-rtdb.firebaseio.com",
+    projectId: "garden-games-bd8a8",
+    storageBucket: "garden-games-bd8a8.firebasestorage.app",
+    messagingSenderId: "864255139453",
+    appId: "1:864255139453:web:b182dd684499a008f45b14"
+  };
+  const LOCAL = params.get('net') === 'local';
+  const suffix = params.get('as') ? '-' + params.get('as').replace(/[^a-z0-9]/gi, '').slice(0, 8) : '';
+  const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  let key = lsGet('gg-player-key' + suffix);
+  if (!key) { key = 'p' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); lsSet('gg-player-key' + suffix, key); }
+
+  /* ---------- local test backend ---------- */
+  function localBackend() {
+    const DBK = 'ggnet-db';
+    const chan = ('BroadcastChannel' in window) ? new BroadcastChannel('ggnet') : null;
+    const read = () => { try { return JSON.parse(localStorage.getItem(DBK) || '{}'); } catch (e) { return {}; } };
+    const write = db => { try { localStorage.setItem(DBK, JSON.stringify(db)); } catch (e) {} };
+    const parts = p => p.split('/').filter(Boolean);
+    const getAt = (db, p) => parts(p).reduce((o, k) => (o && typeof o === 'object') ? o[k] : undefined, db);
+    const setAt = (db, p, v) => {
+      const ks = parts(p); let o = db;
+      for (let i = 0; i < ks.length - 1; i++) { if (!o[ks[i]] || typeof o[ks[i]] !== 'object') o[ks[i]] = {}; o = o[ks[i]]; }
+      const last = ks[ks.length - 1];
+      if (v === null || v === undefined) delete o[last]; else o[last] = JSON.parse(JSON.stringify(v));
+    };
+    const listeners = new Set();
+    const overlaps = (a, b) => { const x = parts(a).join('/'), y = parts(b).join('/'); return x === y || x.startsWith(y + '/') || y.startsWith(x + '/') || !x || !y; };
+    const notify = path => listeners.forEach(l => { if (overlaps(path, l.path)) l.fire(); });
+    if (chan) chan.onmessage = e => notify(e.data.path);
+    window.addEventListener('storage', e => { if (e.key === DBK) notify(''); });
+    const change = (path, fn) => { const db = read(); fn(db); write(db); setTimeout(() => notify(path)); if (chan) chan.postMessage({ path }); };
+    const onUnload = [];
+    window.addEventListener('pagehide', () => onUnload.forEach(f => f()));
+    let pushN = 0;
+    return {
+      name: 'local',
+      async init() { return key; },
+      ref(path) {
+        return {
+          path,
+          async get() { return getAt(read(), path) ?? null; },
+          async set(v) { change(path, db => setAt(db, path, v)); },
+          async update(obj) { change(path, db => Object.entries(obj).forEach(([k, v]) => setAt(db, path + '/' + k, v))); },
+          async remove() { change(path, db => setAt(db, path, null)); },
+          push(v) { const k = Date.now().toString(36).padStart(9, '0') + (pushN++).toString(36).padStart(4, '0') + Math.random().toString(36).slice(2, 5); change(path, db => setAt(db, path + '/' + k, v)); return k; },
+          on(cb) { let last; const l = { path, fire: () => { const v = getAt(read(), path) ?? null, s = JSON.stringify(v); if (s !== last) { last = s; cb(v); } } }; listeners.add(l); setTimeout(l.fire); return () => listeners.delete(l); },
+          onChild(cb) { const seen = new Set(); const l = { path, fire: () => { const v = getAt(read(), path) || {}; Object.keys(v).sort().forEach(k => { if (!seen.has(k)) { seen.add(k); cb(k, v[k]); } }); } }; listeners.add(l); setTimeout(l.fire); return () => listeners.delete(l); },
+          onDisconnectRemove() { onUnload.push(() => { const db = read(); setAt(db, path, null); write(db); if (chan) chan.postMessage({ path }); }); },
+          keepAlive(v) { this.set(v); this.onDisconnectRemove(); return () => this.remove(); }
+        };
+      }
+    };
+  }
+
+  /* ---------- Firebase backend ---------- */
+  function firebaseBackend() {
+    let db = null;
+    return {
+      name: 'firebase',
+      async init() {
+        if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+        const auth = firebase.auth();
+        if (!auth.currentUser) await auth.signInAnonymously();
+        db = firebase.database();
+        return key;
+      },
+      ref(path) {
+        const r = () => db.ref(path);
+        return {
+          path,
+          async get() { return (await r().get()).val(); },
+          set(v) { return r().set(v === undefined ? null : v); },
+          update(obj) { return r().update(obj); },
+          remove() { return r().remove(); },
+          push(v) { const p = r().push(); p.set(v); return p.key; },
+          on(cb) { const h = s => cb(s.val()); r().on('value', h); return () => r().off('value', h); },
+          onChild(cb) { const h = s => cb(s.key, s.val()); r().orderByKey().on('child_added', h); return () => r().off('child_added', h); },
+          onDisconnectRemove() { r().onDisconnect().remove(); },
+          keepAlive(v) {
+            // re-announce presence whenever the connection comes back; returns a stop function
+            const c = db.ref('.info/connected');
+            const h = s => { if (s.val() === true) { r().onDisconnect().remove(); r().set(v); } };
+            c.on('value', h);
+            return () => { c.off('value', h); r().onDisconnect().cancel(); r().remove(); };
+          }
+        };
+      }
+    };
+  }
+
+  const hasFirebase = () => typeof window.firebase !== 'undefined' && firebase.initializeApp;
+  let backend = null, ready = null;
+  const WORDS = ['BLOOM', 'PETAL', 'FERN', 'MOSS', 'DAISY', 'TULIP', 'IVY', 'SPROUT', 'CLOVER', 'POPPY', 'LILY', 'BASIL', 'MINT', 'ROSE', 'SAGE', 'ACORN'];
+  window.NET = {
+    key,
+    available() { return LOCAL || hasFirebase(); },
+    backendName() { return LOCAL ? 'local' : (hasFirebase() ? 'firebase' : 'none'); },
+    init() {
+      if (!ready) { backend = LOCAL ? localBackend() : firebaseBackend(); ready = backend.init(); }
+      return ready;
+    },
+    ref(path) { return backend.ref(path); },
+    async newCode(game) {
+      for (let i = 0; i < 20; i++) {
+        const code = WORDS[Math.floor(Math.random() * WORDS.length)] + '-' + (10 + Math.floor(Math.random() * 90));
+        const ex = await backend.ref('rooms/' + code + '/meta').get();
+        if (!ex) return code;
+      }
+      return 'ROOM-' + Date.now().toString(36).slice(-5).toUpperCase();
+    },
+    cleanCode(s) { return String(s || '').toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 12); },
+    link(game, code) {
+      const u = new URL(location.href); u.hash = '';
+      const keep = new URLSearchParams(); if (LOCAL) keep.set('net', 'local');
+      u.search = keep.toString();
+      return u.toString().replace(/#$/, '') + '#' + game + '-room-' + code;
+    },
+    roomFromHash(game) { const m = location.hash.match(new RegExp('^#' + game + '-room-([A-Z0-9-]{3,12})$', 'i')); return m ? m[1].toUpperCase() : null; }
+  };
+})();
+
+</script>
 <script>
 (() => {
 /* ================= ENGINE ================= */
@@ -707,22 +958,23 @@ const cnt = new Int8Array(7);
 function cellScore(i, p) {
   cnt.fill(0);
   for (let d = 0; d < 4; d++) cnt[lineLevel(i, d, p)]++;
+  if (cnt[3] >= 2 && !cnt[6]) { G_FOUR = false; return -1; } // double open three: not allowed
   G_FOUR = (cnt[4] + cnt[5] + cnt[6]) > 0;
   if (cnt[6]) return 1e7;
   if (cnt[5]) return 1e6;
   if (cnt[4] >= 2) return 8e5;
   if (cnt[4] && cnt[3]) return 4e5;
-  if (cnt[3] >= 2) return 1e5;
   return cnt[4] * 6000 + cnt[3] * 5000 + cnt[2] * 800 + cnt[1] * 300 + nb[i] * 2;
 }
 function genCands(side) {
   const other = 3 - side, out = [];
   for (let i = 0; i < SZ; i++) if (board[i] === 0 && nb[i] > 0) {
-    const a = cellScore(i, side), f = G_FOUR, d = cellScore(i, other);
+    const a = cellScore(i, side), f = G_FOUR, d = Math.max(0, cellScore(i, other));
     out.push({ i, a, d, f });
   }
   return out;
 }
+function isDoubleThree(i, p) { if (board[i]) return false; let c = 0, five = false; for (let d = 0; d < 4; d++) { const l = lineLevel(i, d, p); if (l === 6) five = true; if (l === 3) c++; } return c >= 2 && !five; }
 function makesFive(i, p) { for (let d = 0; d < 4; d++) if (lineLevel(i, d, p) === 6) return true; return false; }
 function fivePointsThrough(i, p) {
   const pts = []; const r = (i / N) | 0, c = i % N;
@@ -774,6 +1026,7 @@ function evaluate(cands) {
   return cap(a1) + 0.3 * cap(a2) - 0.7 * cap(d1) - 0.25 * cap(d2) + 0.03 * (sa - sd);
 }
 function candList(cands, K) {
+  cands = cands.filter(c => c.a >= 0);
   const strong = cands.some(c => c.d >= 8e5);
   let list = strong ? cands.filter(c => c.d >= 5000 || c.f) : cands.slice();
   if (!list.length) list = cands.slice();
@@ -792,7 +1045,7 @@ function negamax(side, depth, alpha, beta, ply) {
   }
   if (oppFives >= 2) return -(WIN - ply - 1);
   let list;
-  if (oppFives === 1) list = [oppFive];
+  if (oppFives === 1) { if (oppFive.a < 0) return -(WIN - ply - 1); list = [oppFive]; }
   else {
     if (myBig >= 8e5) return WIN - ply - 2;
     if (depth <= 0) return evaluate(cands);
@@ -822,7 +1075,7 @@ function aiMove(me) {
   if (!stones) return { i: 7 * N + 7, kind: 'open' };
   const cands = genCands(me);
   let t = cands.find(c => c.a >= 1e7); if (t) return { i: t.i, kind: 'win' };
-  t = cands.find(c => c.d >= 1e7); if (t) return { i: t.i, kind: 'block5' };
+  t = cands.find(c => c.d >= 1e7 && c.a >= 0); if (t) return { i: t.i, kind: 'block5' };
   const bigA = cands.reduce((m, c) => c.a > m.a ? c : m, cands[0]);
   if (bigA.a >= 8e5) return { i: bigA.i, kind: 'open4' };
   vcfBudget = 6000; const win = vcf(me, 12); if (win >= 0) return { i: win, kind: 'vcf', vlen };
@@ -1092,11 +1345,11 @@ function makeSprite(type, r, scale) {
   const g = c.getContext('2d'); g.scale(scale, scale); g.translate(D / scale / 2, D / scale / 2);
   g.lineJoin = 'round'; DRAW[type](g, r); return c;
 }
-function buildSprites() { const r = cell * .47; sprites = { r, human: makeSprite(state.mode === 'watch' ? 'ginkgo' : myFlower, r, dpr), ai: makeSprite('monstera', r, dpr) }; }
+function buildSprites() { const r = cell * .47; sprites = { r, human: makeSprite(KIND(1), r, dpr), ai: makeSprite(KIND(2), r, dpr) }; }
 function stone(g, i, p, alpha, isLast) {
   const [x, y] = P(i), R = rng(i * 7919 + p * 31), r = sprites.r;
-  const k1 = KIND(p), upright = p === AI || k1 === 'tulip' || k1 === 'ginkgo';
-  const rot = upright ? (R() - .5) * (p === AI ? 1.3 : .5) : R() * Math.PI * 2;
+  const k1 = KIND(p), upright = k1 === 'monstera' || k1 === 'tulip' || k1 === 'ginkgo';
+  const rot = upright ? (R() - .5) * (k1 === 'monstera' ? 1.3 : .5) : R() * Math.PI * 2;
   const sp = p === HUMAN ? sprites.human : sprites.ai, D = sp.width / dpr;
   g.save(); g.globalAlpha = alpha;
   g.beginPath(); g.ellipse(x + 1.5, y + 2.4, r * .78, r * .7, 0, 0, 7); g.fillStyle = OUT(.1); g.fill();
@@ -1137,7 +1390,7 @@ function draw() {
     stone(ctx, last, board[last], 1, true);
     ctx.restore();
   }
-  if (!W() && hover >= 0 && !board[hover] && state.phase === 'play' && state.turn === HUMAN && !state.thinking) stone(ctx, hover, HUMAN, .42, false);
+  if (!W() && hover >= 0 && !board[hover] && state.phase === 'play' && state.turn === ME() && !state.thinking) stone(ctx, hover, ME(), .42, false);
   if (flash >= 0) {
     const a = (performance.now() - flashT) / 1800;
     if (a >= 1) flash = -1;
@@ -1176,14 +1429,21 @@ let rec = blankRec(), wrec = blankW();
 try { const raw = localStorage.getItem(REC_KEY); if (raw) rec = Object.assign(blankRec(), JSON.parse(raw)); } catch (e) {}
 try { const raw = localStorage.getItem(WREC_KEY); if (raw) wrec = Object.assign(blankW(), JSON.parse(raw)); } catch (e) {}
 function saveRec() { try { localStorage.setItem(REC_KEY, JSON.stringify(rec)); localStorage.setItem(WREC_KEY, JSON.stringify(wrec)); } catch (e) {} }
-let savedMode = 'play'; try { if (localStorage.getItem('omok-garden-mode') === 'watch') savedMode = 'watch'; } catch (e) {}
+const NETOK = () => !!(window.NET && NET.available());
+let savedMode = 'play'; try { const m = localStorage.getItem('omok-garden-mode'); if (m === 'watch' || (m === 'online' && NETOK())) savedMode = m; } catch (e) {}
 const SPEED = { slow: 2200, normal: 900, fast: 150 };
 let savedSpeed = 'normal'; try { const s = localStorage.getItem('omok-garden-speed'); if (SPEED[s]) savedSpeed = s; } catch (e) {}
 const state = { mode: savedMode, phase: 'roll', turn: 0, game: 1, moves: [], winLine: null, nextStarter: null, thinking: false, paused: false, speed: savedSpeed, gid: 0 };
 const W = () => state.mode === 'watch';
+const O = () => state.mode === 'online';
+// online room state (host = side 1, guest = side 2)
+const on = { code: null, inRoom: false, busy: false, host: null, side: 1, oppKey: null, members: {}, presence: {}, flowers: null,
+  st: null, raw: '', unsubs: [], oppOnline: false, oppSeen: {}, diceN: -1, diceAnim: false, hostTimer: 0, collide: '', rematchBusy: false };
+const ME = () => O() ? on.side : HUMAN;
 const R = () => W() ? wrec : rec;
-const NAME = p => W() ? (p === 1 ? 'Ginkgo' : 'Monstera') : (p === HUMAN ? 'You' : 'Claude');
-const KIND = p => W() ? (p === 1 ? 'ginkgo' : 'monstera') : (p === HUMAN ? myFlower : 'monstera');
+const oppName = () => (on.oppKey && on.members[on.oppKey] && on.members[on.oppKey].name) || 'Your friend';
+const NAME = p => O() ? (p === on.side ? 'You' : oppName()) : W() ? (p === 1 ? 'Ginkgo' : 'Monstera') : (p === HUMAN ? 'You' : 'Claude');
+const KIND = p => O() ? (on.flowers ? on.flowers[p] : (p === on.side ? myFlower : 'ginkgo')) : W() ? (p === 1 ? 'ginkgo' : 'monstera') : (p === HUMAN ? myFlower : 'monstera');
 const COLS = 'ABCDEFGHIJKLMNO';
 const coord = i => COLS[i % N] + (((i / N) | 0) + 1);
 const FACES = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
@@ -1225,7 +1485,7 @@ function chatYou(i, moveNo) {
   const d = document.createElement('div'); d.className = 'msg right mine';
   const b = document.createElement('div'); b.className = 'bubble';
   b.innerHTML = `<div class="who">You · move ${moveNo}</div>You played <b>${coord(i)}</b>.`;
-  b.tabIndex = 0; b.dataset.i = i; d.appendChild(b); d.appendChild(avatar(myFlower)); chatBox.appendChild(d); trimChat(); chatScroll();
+  b.tabIndex = 0; b.dataset.i = i; d.appendChild(b); d.appendChild(avatar(KIND(ME()))); chatBox.appendChild(d); trimChat(); chatScroll();
 }
 /* move-notes drawer on narrow screens: the same .chat-panel node moves into the board */
 const notesPanel = document.querySelector('.chat-panel'), notesAside = notesPanel.parentNode;
@@ -1328,6 +1588,9 @@ function explain(info, me) {
 
 /* ---------- ui ---------- */
 function ui() {
+  if (O()) return uiOnline();
+  $('onlineCard').hidden = true; $('onlineBar').hidden = true; $('resetBtn').parentNode.hidden = false; $('rollBtn').hidden = false; $('pickerPanel').hidden = false;
+  $('savedNote').textContent = 'Saved on this device. Unfinished games are not counted.';
   const r = R(), w = W();
   $('recLabel').textContent = w ? 'Watch tally' : 'Your record';
   $('nameYou').firstChild.textContent = w ? 'Ginkgo wins' : 'Your wins';
@@ -1463,8 +1726,10 @@ function nextGame() {
 }
 function enterMode(m) {
   clearTimeout(watchTimer); chatStopTyping();
+  if (O() && m !== 'online') leaveRoom(true);
   state.mode = m; state.thinking = false; state.gid++;
   try { localStorage.setItem('omok-garden-mode', m); } catch (e) {}
+  if (m === 'online') return enterOnline();
   const r = R(); state.game = r.games + 1; state.nextStarter = r.nextStarter;
   buildSprites(); paintIcons();
   chatSys(m === 'watch' ? 'Watching Claude Ginkgo vs Claude Monstera' : 'Playing you vs Claude');
@@ -1481,15 +1746,18 @@ function cellFromEvent(e) {
 cv.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || W()) return; const h = cellFromEvent(e); if (h !== hover) { hover = h; draw(); } });
 cv.addEventListener('pointerleave', () => { hover = -1; draw(); });
 cv.addEventListener('click', e => {
-  if (W() || state.phase !== 'play' || state.turn !== HUMAN || state.thinking) return;
+  if (O()) { if (state.phase === 'play' && state.turn !== on.side) note(on.oppOnline ? `It’s ${oppName()}’s turn.` : `Waiting for ${oppName()} to reconnect.`); }
+  if (W() || state.phase !== 'play' || state.turn !== ME() || state.thinking) return;
   const i = cellFromEvent(e); if (i < 0 || board[i]) return;
-  hover = -1; makeMove(i, HUMAN);
+  if (isDoubleThree(i, O() ? on.side : HUMAN)) { note('Double three isn’t allowed here. That move would make two open threes at once.'); return; }
+  hover = -1; if (O()) onlineMove(i); else makeMove(i, HUMAN);
 });
-$('rollBtn').addEventListener('click', () => { const s = $('rollBtn').dataset.start; if (s) beginGame(+s); else roll(); });
-$('nextBtn').addEventListener('click', nextGame);
+$('rollBtn').addEventListener('click', () => { if (O()) return onlineRoll(); const s = $('rollBtn').dataset.start; if (s) beginGame(+s); else roll(); });
+$('nextBtn').addEventListener('click', () => O() ? onlineRematch() : nextGame());
 let modeArmed = 0;
 document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('click', () => {
   const m = b.dataset.mode; if (m === state.mode) return;
+  if (m === 'online' && !NETOK()) { note('Online play works on the website version.'); return; }
   const inGame = !W() && state.phase === 'play' && state.moves.length > 0;
   if (inGame && !modeArmed) { note('You’re in the middle of a game. Tap again to leave it. It won’t count.'); modeArmed = setTimeout(() => modeArmed = 0, 4000); return; }
   clearTimeout(modeArmed); modeArmed = 0; note(''); enterMode(m);
@@ -1508,24 +1776,372 @@ $('resetBtn').addEventListener('click', () => {
   saveRec();
   state.game = 1; state.nextStarter = null; note(W() ? 'Tally cleared.' : 'Record cleared.'); startRoll();
 });
-const plural = { daisy: 'daisies', sunflower: 'sunflowers', tulip: 'tulips', cherry: 'cherry blossoms', rose: 'roses', violet: 'violets' };
-function paintIcons() { iconCanvas($('swYou'), KIND(1), 30); iconCanvas($('swCl'), 'monstera', 30); ui(); }
+const plural = { daisy: 'daisies', sunflower: 'sunflowers', tulip: 'tulips', cherry: 'cherry blossoms', rose: 'roses', violet: 'violets', ginkgo: 'ginkgo leaves', monstera: 'monstera leaves' };
+function paintIcons() { const me = ME(); iconCanvas($('swYou'), KIND(me), 30); iconCanvas($('swCl'), KIND(3 - me), 30); ui(); }
 FLOWERS.forEach(f => {
   const b = document.createElement('button'); b.className = 'pick'; b.type = 'button'; b.dataset.f = f.id; b.setAttribute('role', 'radio');
   const c = document.createElement('canvas'); iconCanvas(c, f.id, 40); b.appendChild(c); b.appendChild(document.createTextNode(f.name));
   b.addEventListener('click', () => {
     if (state.phase === 'play') return;
     myFlower = f.id; try { localStorage.setItem('omok-garden-flower', f.id); } catch (e) {}
+    if (O() && on.inRoom) NET.ref(`rooms/${on.code}/members/${NET.key}/flower`).set(f.id);
     buildSprites(); paintIcons(); ui(); draw();
   });
   $('picker').appendChild(b);
 });
+/* ================= ONLINE (you vs a friend) =================
+   rooms/CODE/meta            {game:'omok', host:KEY, created}
+   rooms/CODE/members/KEY     {name, flower, joined}
+   rooms/CODE/presence/KEY    true while that device is connected
+   rooms/CODE/omok            JSON string of the room's game state (see freshRoomState)
+   Host is side 1, guest is side 2. Only the player to move writes moves; the host rolls the dice. */
+const okFlower = f => FLOWERS.some(x => x.id === f) ? f : 'daisy';
+const cleanName = s => String(s || '').replace(/[<>&"`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16) || 'Player';
+try { $('olName').value = cleanName(localStorage.getItem('omok-online-name') || 'Player'); } catch (e) { $('olName').value = 'Player'; }
+function saveName() { const n = cleanName($('olName').value); $('olName').value = n; try { localStorage.setItem('omok-online-name', n); } catch (e) {} return n; }
+$('olName').addEventListener('change', saveName);
+$('olCode').addEventListener('input', () => { const el = $('olCode'), v = el.value.toUpperCase(); if (v !== el.value) el.value = v; });
+const roomRef = sub => NET.ref(`rooms/${on.code}/${sub}`);
+const turnOf = st => st.moves.length % 2 === 0 ? st.starter : 3 - st.starter;
+const sideAt = (st, k) => k % 2 === 0 ? st.starter : 3 - st.starter;
+const pieceWord = k => k === 'ginkgo' ? 'ginkgo leaf' : flowerName(k).toLowerCase();
+function olErr(t) { $('olErr').textContent = t || ''; }
+function olBusy(b) { on.busy = b; $('olHost').disabled = b; $('olJoin').disabled = b; }
+function freshRoomState() { return { v: 1, game: 1, phase: 'roll', starter: null, moves: [], dice: null, rolls: 0, scores: {}, draws: 0, games: 0, totalMoves: 0, nextStarter: null, winner: null, winLine: null }; }
+function toLobby() { clearBoard(); state.phase = 'lobby'; state.turn = 0; state.gid++; buildSprites(); paintIcons(); draw(); }
+function enterOnline(code) {
+  state.thinking = false; on.side = 1; on.flowers = null; olErr('');
+  chatSys('Playing a friend online');
+  toLobby();
+  if (code) joinRoom(code);
+}
+async function hostRoom() {
+  if (on.busy) return; olErr(''); olBusy(true);
+  try {
+    await NET.init();
+    const code = await NET.newCode('omok'), name = saveName();
+    await NET.ref(`rooms/${code}/meta`).set({ game: 'omok', host: NET.key, created: Date.now() });
+    await NET.ref(`rooms/${code}/members/${NET.key}`).set({ name, flower: myFlower, joined: Date.now() });
+    await NET.ref(`rooms/${code}/omok`).set(JSON.stringify(freshRoomState()));
+    if (O()) enterRoom(code, NET.key, 'host');
+  } catch (e) { olErr('Couldn’t reach the garden server. Check your connection and try again.'); }
+  olBusy(false);
+}
+async function joinRoom(raw) {
+  if (on.busy) return;
+  const code = NET.cleanCode(raw); olErr('');
+  if (code.length < 3) { olErr('Type the room code first, like BLOOM-42.'); return; }
+  $('olCode').value = code; olBusy(true);
+  try {
+    await NET.init();
+    const meta = await NET.ref(`rooms/${code}/meta`).get();
+    if (!meta) olErr(`There’s no room called ${code}. Check the code?`);
+    else if (meta.game !== 'omok') olErr(`${code} is a room for a different game.`);
+    else {
+      const members = (await NET.ref(`rooms/${code}/members`).get()) || {}, mine = members[NET.key];
+      const full = !mine && meta.host !== NET.key && Object.keys(members).some(k => k !== meta.host && k !== NET.key);
+      if (full) olErr('This room is full. Omok is for two players.');
+      else if (O()) {
+        await NET.ref(`rooms/${code}/members/${NET.key}`).set({ name: saveName(), flower: myFlower, joined: (mine && mine.joined) || Date.now() });
+        enterRoom(code, meta.host, mine ? 'back' : 'join');
+      }
+    }
+  } catch (e) { olErr('Couldn’t reach the garden server. Check your connection and try again.'); }
+  olBusy(false);
+}
+function enterRoom(code, host, how) {
+  leaveRoom(false);
+  Object.assign(on, { code, host, inRoom: true, st: null, raw: '', lastWrite: '', stLoaded: false, pendingRaw: undefined, members: {}, presence: {}, presenceRaw: null,
+    membersSeen: false, oppKey: null, guestKey: null, lastOppName: '', oppOnline: false, oppSeen: {}, diceN: -1, diceAnim: false, collide: '', side: host === NET.key ? 1 : 2 });
+  clearBoard(); state.phase = 'roll'; state.turn = 0; state.gid++;
+  on.unsubs.push(roomRef('presence/' + NET.key).keepAlive(true));
+  on.unsubs.push(roomRef('members').on(onMembers));
+  on.unsubs.push(roomRef('presence').on(onPresence));
+  on.unsubs.push(roomRef('omok').on(onRoomState));
+  try { history.replaceState(null, '', '#omok-room-' + code); } catch (e) {}
+  chatSys(how === 'host' ? `You opened room ${code}` : how === 'back' ? `Back in room ${code}` : `You joined room ${code}`);
+  $('olCodeBig').textContent = code; $('olLink').textContent = NET.link('omok', code);
+  buildSprites(); paintIcons(); draw();
+}
+function leaveRoom(explicit) {
+  clearTimeout(on.hostTimer); on.hostTimer = 0;
+  on.unsubs.forEach(f => { try { f(); } catch (e) {} }); on.unsubs = [];
+  const was = on.inRoom ? on.code : null;
+  if (was) { try { if (explicit) roomRef('members/' + NET.key).remove(); roomRef('presence/' + NET.key).remove(); } catch (e) {} }
+  Object.assign(on, { inRoom: false, code: null, st: null, raw: '', oppKey: null, flowers: null, side: 1, members: {}, presence: {}, oppOnline: false, diceAnim: false });
+  if (was && /^#omok-room-/i.test(location.hash)) { try { history.replaceState(null, '', '#omok'); } catch (e) {} }
+  return was;
+}
+function onMembers(v) {
+  const m = {}; Object.entries(v || {}).forEach(([k, x]) => { if (x && typeof x === 'object') m[k] = { name: cleanName(x.name), flower: okFlower(x.flower), joined: +x.joined || 0 }; });
+  const me = NET.key, host = on.host;
+  const guest = Object.keys(m).filter(k => k !== host).sort((a, b) => (m[a].joined - m[b].joined) || (a < b ? -1 : 1))[0] || null;
+  if (me !== host && m[me] && guest !== me) { // someone else got the second seat first
+    leaveRoom(true); toLobby(); olErr('This room is full. Omok is for two players.'); return;
+  }
+  on.members = m; on.guestKey = guest; on.side = me === host ? 1 : 2;
+  const opp = on.side === 1 ? guest : (m[host] ? host : null), prevOpp = on.oppKey;
+  if (on.membersSeen) {
+    if (opp && opp !== prevOpp) chatSys(`${m[opp].name} joined the room`);
+    else if (!opp && prevOpp) chatSys(`${on.lastOppName} left the room`);
+    if (prevOpp && prevOpp !== opp) delete on.oppSeen[prevOpp];
+  } else if (opp) chatSys(`Playing with ${m[opp].name}`);
+  on.oppKey = opp; if (opp) on.lastOppName = m[opp].name;
+  on.membersSeen = true;
+  const f1 = m[host] ? m[host].flower : (on.side === 1 ? myFlower : 'daisy');
+  let f2 = guest ? m[guest].flower : (on.side === 2 ? myFlower : 'daisy');
+  const same = !!guest && !!m[host] && f2 === f1; if (same) f2 = 'ginkgo';
+  on.flowers = { 1: f1, 2: f2 };
+  const ck = same ? f1 : '';
+  if (ck && ck !== on.collide) {
+    if (on.side === 2) { chatSys(`${m[host].name} picked ${plural[f1]} too, so you play ginkgo leaves in this room.`); note(`You both picked ${plural[f1]}, so you play ginkgo leaves.`); }
+    else chatSys(`${m[guest].name} picked ${plural[f1]} too, so they play ginkgo leaves.`);
+  }
+  on.collide = ck;
+  onPresence(on.presenceRaw);
+  buildSprites(); paintIcons(); draw();
+  if (on.pendingRaw !== undefined) { const r = on.pendingRaw; on.pendingRaw = undefined; onRoomState(r); }
+  hostDuties();
+}
+function onPresence(v) {
+  on.presenceRaw = v; on.presence = v || {};
+  const opp = on.oppKey, now = !!(opp && on.presence[opp]);
+  if (opp) {
+    const seen = on.oppSeen[opp];
+    if (seen === true && !now) { chatSys(`${oppName()} went offline`); on.oppSeen[opp] = false; }
+    else if (seen === false && now) { chatSys(`${oppName()} is back`); on.oppSeen[opp] = true; }
+    else if (seen === undefined && now) on.oppSeen[opp] = true;
+  }
+  on.oppOnline = now; ui();
+}
+function onRoomState(raw) {
+  if (!on.inRoom) return;
+  if (!on.membersSeen) { on.pendingRaw = raw; return; }
+  on.stLoaded = true;
+  if (!raw) { hostDuties(); ui(); return; }
+  if (raw === on.raw) return;
+  let st; try { st = JSON.parse(raw); } catch (e) { return; }
+  if (!st || !Array.isArray(st.moves)) return;
+  // an older write landed after ours (both devices wrote at once): put ours back
+  if (on.st && st.v < on.st.v && on.raw === on.lastWrite && (on.heals = (on.heals || 0) + 1) <= 3) { writeRoom(JSON.parse(on.raw)); return; }
+  if (!on.st || st.v >= on.st.v) on.heals = 0;
+  applyRoom(st, raw);
+}
+function writeRoom(st) {
+  st.v = Math.max(st.v || 0, on.st ? on.st.v : 0) + 1;
+  const raw = JSON.stringify(st); on.lastWrite = raw;
+  applyRoom(st, raw);
+  Promise.resolve(roomRef('omok').set(raw)).catch(() => note('Couldn’t reach the garden server. Check your connection.'));
+}
+function applyRoom(st, raw) {
+  const prev = on.st; on.st = st; on.raw = raw;
+  const inGame = x => x.phase === 'play' || x.phase === 'over';
+  const same = prev && inGame(prev) && inGame(st) && prev.game === st.game && prev.starter === st.starter &&
+    st.moves.length >= prev.moves.length && prev.moves.every((m, k) => st.moves[k] === m);
+  const fresh = [];
+  if (same) for (let k = prev.moves.length; k < st.moves.length; k++) { place(st.moves[k], sideAt(st, k)); fresh.push(k); }
+  else { board.fill(0); nb.fill(0); if (inGame(st)) st.moves.forEach((i, k) => place(i, sideAt(st, k))); }
+  state.moves = inGame(st) ? st.moves.slice() : []; state.game = st.game; state.phase = st.phase;
+  state.turn = st.phase === 'play' ? turnOf(st) : 0; state.winLine = st.phase === 'over' ? (st.winLine || null) : null;
+  if (!same) { state.gid++; flash = -1; }
+  if (inGame(st) && !(prev && inGame(prev) && prev.game === st.game)) {
+    const s = st.starter === on.side ? 'you start' : `${NAME(st.starter)} starts`;
+    chatSys(prev || !st.moves.length ? `Game ${st.game} · ${s}` : `Game ${st.game} · ${st.moves.length} move${st.moves.length === 1 ? '' : 's'} so far`);
+  }
+  fresh.forEach(k => {
+    const i = st.moves[k], p = sideAt(st, k); chatMove(p, i, k + 1);
+    const r = checkWin(i, p);
+    if (r.over && !r.win) note(p === on.side ? 'Six or more in a row does not count. You need exactly five.' : `${NAME(p)} made six in a row. That does not count.`);
+  });
+  if (st.phase === 'over' && !(prev && prev.phase === 'over' && prev.game === st.game)) chatSys(overText(st));
+  if (st.phase === 'roll') diceCard(st, prev);
+  hostDuties(); ui(); draw();
+}
+function overText(st) {
+  const w = st.winner;
+  return w === on.side ? `You made five. You win game ${st.game}!` : w ? `${NAME(w)} made five. ${NAME(w)} wins game ${st.game}.` : 'The board is full. It is a draw.';
+}
+function diceMsg(d) {
+  if (d.a === d.b) return `Both rolled ${d.a}. ${on.side === 1 ? 'Roll again.' : NAME(1) + ' rolls again.'}`;
+  const who = d.a > d.b ? 1 : 2;
+  return `${d.a} vs ${d.b}. ${who === on.side ? 'You start.' : NAME(who) + ' starts.'}`;
+}
+function diceCard(st, prev) {
+  $('diceBox').hidden = false; $('rollHint').hidden = false; delete $('rollBtn').dataset.start;
+  $('rollTitle').textContent = st.game === 1 ? 'Who goes first?' : 'Last game was a draw. Roll again.';
+  const d = st.dice, dy = $('dieYou'), dc = $('dieCl');
+  if (!d) { on.diceN = -1; on.diceTok = (on.diceTok || 0) + 1; on.diceAnim = false; dy.classList.remove('rolling'); dc.classList.remove('rolling'); face(dy, 0); face(dc, 0); $('rollMsg').textContent = ''; return; }
+  if (d.n === on.diceN) return;
+  on.diceN = d.n;
+  const tok = on.diceTok = (on.diceTok || 0) + 1;
+  if (!prev) { face(dy, d.a); face(dc, d.b); $('rollMsg').textContent = diceMsg(d); return; }
+  // same tumble on both screens, then the result the host rolled
+  on.diceAnim = true; $('rollMsg').textContent = ''; dy.classList.add('rolling'); dc.classList.add('rolling');
+  let n = 0;
+  const tick = () => {
+    if (tok !== on.diceTok) return;
+    face(dy, 1 + (Math.random() * 6 | 0)); face(dc, 1 + (Math.random() * 6 | 0));
+    if (++n < 12) return setTimeout(tick, 70);
+    dy.classList.remove('rolling'); dc.classList.remove('rolling');
+    face(dy, d.a); face(dc, d.b); $('rollMsg').textContent = diceMsg(d);
+    on.diceAnim = false; ui();
+  };
+  tick();
+}
+function hostDuties() {
+  if (!on.inRoom || on.side !== 1 || !on.membersSeen) return;
+  if (on.stLoaded && !on.st) { writeRoom(freshRoomState()); return; }
+  const st = on.st;
+  if (st && st.phase === 'roll' && st.dice && st.dice.a !== st.dice.b && !on.hostTimer) {
+    const v = st.v;
+    on.hostTimer = setTimeout(() => {
+      on.hostTimer = 0;
+      if (!on.inRoom || !on.st) return;
+      if (on.st.v !== v) return hostDuties();
+      const s = JSON.parse(on.raw);
+      s.phase = 'play'; s.starter = s.dice.a > s.dice.b ? 1 : 2; s.moves = []; s.winner = null; s.winLine = null;
+      writeRoom(s);
+    }, 2300);
+  }
+}
+function onlineRoll() {
+  const st = on.st;
+  if (!st || st.phase !== 'roll' || on.side !== 1 || on.diceAnim || !on.oppKey || (st.dice && st.dice.a !== st.dice.b)) return;
+  const s = JSON.parse(on.raw);
+  s.rolls = (s.rolls || 0) + 1;
+  s.dice = { a: 1 + (Math.random() * 6 | 0), b: 1 + (Math.random() * 6 | 0), n: s.rolls };
+  writeRoom(s);
+}
+function onlineMove(i) {
+  const st = on.st;
+  if (!st || st.phase !== 'play' || turnOf(st) !== on.side || board[i]) return;
+  const s = JSON.parse(on.raw); s.moves.push(i);
+  place(i, on.side); const res = checkWin(i, on.side); unplace(i);
+  if (res.win || s.moves.length === SZ) {
+    s.phase = 'over'; s.games = (s.games || 0) + 1; s.totalMoves = (s.totalMoves || 0) + s.moves.length;
+    if (res.win) { s.winner = on.side; s.winLine = res.win; s.scores = s.scores || {}; s.scores[NET.key] = (s.scores[NET.key] || 0) + 1; s.nextStarter = 3 - on.side; }
+    else { s.winner = 0; s.winLine = null; s.draws = (s.draws || 0) + 1; s.nextStarter = null; }
+  }
+  writeRoom(s);
+}
+function onlineRematch() {
+  const st = on.st;
+  if (!st || st.phase !== 'over' || !on.oppKey) return;
+  const s = JSON.parse(on.raw);
+  s.game++; s.moves = []; s.winner = null; s.winLine = null; s.dice = null;
+  if (s.nextStarter) { s.phase = 'play'; s.starter = s.nextStarter; } else { s.phase = 'roll'; s.starter = null; }
+  writeRoom(s);
+}
+function chatMove(p, i, moveNo) {
+  if (p === on.side) return chatYou(i, moveNo);
+  const d = document.createElement('div'); d.className = 'msg left';
+  d.appendChild(avatar(KIND(p)));
+  const b = document.createElement('div'); b.className = 'bubble';
+  const who = document.createElement('div'); who.className = 'who'; who.textContent = `${NAME(p)} · move ${moveNo}`; b.appendChild(who);
+  const bb = document.createElement('b'); bb.textContent = coord(i);
+  b.appendChild(document.createTextNode(`${NAME(p)} played `)); b.appendChild(bb); b.appendChild(document.createTextNode('.'));
+  b.tabIndex = 0; b.dataset.i = i; b.title = 'Show this spot on the board';
+  d.appendChild(b); chatBox.appendChild(d); trimChat(); chatScroll();
+  notesNew(p, `${NAME(p)} played ${coord(i)}.`, i, moveNo);
+}
+function uiOnline() {
+  const st = on.st, inRoom = on.inRoom, opp = on.oppKey, ph = state.phase;
+  document.querySelectorAll('#modeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === 'online'));
+  $('watchBar').hidden = true; $('resetBtn').parentNode.hidden = true;
+  const lobby = !inRoom || !opp;
+  $('onlineCard').hidden = !lobby; $('olMenu').hidden = inRoom; $('olWait').hidden = !inRoom;
+  $('rollCard').hidden = lobby || ph !== 'roll';
+  $('onlineBar').hidden = !inRoom;
+  if (inRoom) {
+    const info = $('olRoomInfo'); info.textContent = 'Room ';
+    const c = document.createElement('b'); c.textContent = on.code; info.appendChild(c);
+    if (opp) {
+      info.appendChild(document.createTextNode(' · '));
+      const dot = document.createElement('span'); dot.className = 'dot' + (on.oppOnline ? '' : ' off'); info.appendChild(dot);
+      info.appendChild(document.createTextNode(`${oppName()} ${on.oppOnline ? 'online' : 'offline'}`));
+    } else info.appendChild(document.createTextNode(' · waiting for a friend'));
+    $('olWaitMsg').textContent = on.lastOppName && on.side === 2 && !opp ? `${on.lastOppName} left. Waiting for a friend…` : 'Waiting for a friend…';
+  }
+  const rb = $('rollBtn');
+  rb.hidden = on.side !== 1; rb.disabled = on.diceAnim || !opp || !!(st && st.dice && st.dice.a !== st.dice.b);
+  rb.textContent = st && st.dice && st.dice.a === st.dice.b ? 'Roll again' : 'Roll the dice';
+  if (ph === 'roll' && on.side === 2 && !on.diceAnim && !(st && st.dice)) $('rollMsg').textContent = `${NAME(1)} rolls the dice.`;
+  $('dieYouName').textContent = NAME(1); $('dieClName').textContent = NAME(2);
+  // room score (kept apart from the vs-Claude record)
+  const sc = (st && st.scores) || {}, games = (st && st.games) || 0;
+  $('recLabel').textContent = 'Room score';
+  $('nameYou').firstChild.textContent = 'You';
+  $('youKind').textContent = `${(on.members[NET.key] && on.members[NET.key].name) || cleanName($('olName').value)} · ${plural[KIND(on.side)]}`;
+  $('nameCl').firstChild.textContent = opp ? oppName() : 'Friend';
+  $('clKind').textContent = opp ? `${plural[KIND(3 - on.side)]} · ${on.oppOnline ? 'online' : 'offline'}` : 'not here yet';
+  $('ptsYou').textContent = sc[NET.key] || 0; $('ptsCl').textContent = (opp && sc[opp]) || 0;
+  $('stDraws').textContent = (st && st.draws) || 0; $('stGames').textContent = games;
+  document.querySelectorAll('.play-only').forEach(el => el.hidden = true);
+  $('stAvgAll').textContent = games ? (st.totalMoves / games).toFixed(1) : '–';
+  $('gameNo').textContent = 'Game ' + (st ? st.game : 1); $('moveNo').textContent = 'Move ' + state.moves.length;
+  $('rowYou').classList.toggle('turn', ph === 'play' && state.turn === on.side);
+  $('rowCl').classList.toggle('turn', ph === 'play' && state.turn === 3 - on.side);
+  $('savedNote').textContent = 'Online games don’t count toward your record against Claude.';
+  $('pickerPanel').hidden = false;
+  const locked = ph === 'play';
+  document.querySelectorAll('.pick').forEach(b => { b.disabled = locked; b.setAttribute('aria-checked', b.dataset.f === myFlower); });
+  $('lockMsg').textContent = locked ? 'Locked during a game. You can switch after this one ends.' : 'Your flower for online games. If you both pick the same one, the guest plays ginkgo leaves.';
+  $('chatLabel').textContent = 'Move notes';
+  const nb2 = $('nextBtn'); nb2.hidden = ph !== 'over' || !opp;
+  if (st && ph === 'over') nb2.textContent = st.nextStarter ? `Rematch · ${st.nextStarter === on.side ? 'You start' : NAME(st.nextStarter) + ' starts'}` : 'Rematch · Roll dice';
+  let t;
+  if (!inRoom) t = 'Play a friend online.';
+  else if (!opp) t = 'Waiting for a friend to join…';
+  else if (!on.oppOnline && ph !== 'over') t = `Waiting for ${oppName()} to reconnect…`;
+  else if (ph === 'roll') t = on.side === 1 ? 'Roll the dice to see who starts.' : `${oppName()} rolls the dice.`;
+  else if (ph === 'play') t = state.turn === on.side ? `Your turn. Place a ${pieceWord(KIND(on.side))}.` : `${oppName()}’s turn…`;
+  else if (ph === 'over' && st) t = overText(st);
+  else t = '';
+  if ($('status').textContent !== t) setStatus(t);
+}
+function copyLink() {
+  if (!on.code) return;
+  const link = NET.link('omok', on.code);
+  const fallback = () => {
+    let ok = false;
+    try { const ta = document.createElement('textarea'); ta.value = link; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (e) {}
+    if (ok) { note('Link copied. Send it to a friend.'); return; }
+    const el = $('olLink');
+    if (!$('onlineCard').hidden) { try { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {} note('Copy the selected link and send it to a friend.'); }
+    else note('Room link: ' + link);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(() => note('Link copied. Send it to a friend.'), fallback);
+  else fallback();
+}
+let leaveArmed = 0;
+function leaveClick() {
+  if (state.phase === 'play' && state.moves.length && !leaveArmed) { note('You’re in the middle of a game. Tap again to leave the room.'); leaveArmed = setTimeout(() => leaveArmed = 0, 4000); return; }
+  clearTimeout(leaveArmed); leaveArmed = 0; note('');
+  const c = leaveRoom(true); if (c) chatSys(`You left room ${c}`);
+  toLobby();
+}
+$('olHost').addEventListener('click', hostRoom);
+$('olJoinForm').addEventListener('submit', e => { e.preventDefault(); joinRoom($('olCode').value); });
+$('olCopy').addEventListener('click', copyLink); $('olCopy2').addEventListener('click', copyLink);
+$('olLeave').addEventListener('click', leaveClick); $('olLeave2').addEventListener('click', leaveClick);
+window.addEventListener('hashchange', () => {
+  const c = window.NET ? NET.roomFromHash('omok') : null; if (!c) return;
+  if (!NETOK()) { note('Online play works on the website version.'); return; }
+  if (O() && on.inRoom && on.code === c) return;
+  if (!O()) enterMode('online'); else if (on.inRoom) leaveRoom(true);
+  joinRoom(c);
+});
 new ResizeObserver(resize).observe(cv.parentElement);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(ui);
 state.game = R().games + 1; state.nextStarter = R().nextStarter;
-paintIcons();
-chatSys(W() ? 'Watching Claude Ginkgo vs Claude Monstera' : 'I’ll explain each of my moves here. I never give hints for yours.');
-if (state.nextStarter && R().games) startCard(state.nextStarter); else startRoll();
+const bootRoom = window.NET ? NET.roomFromHash('omok') : null;
+if (!NETOK()) { $('onlineModeBtn').classList.add('na'); $('onlineModeBtn').title = 'Online play works on the website version.'; if (bootRoom) setTimeout(() => note('Online play works on the website version.')); }
+if (O() || (bootRoom && NETOK())) { state.mode = 'online'; enterOnline(bootRoom); }
+else {
+  paintIcons();
+  chatSys(W() ? 'Watching Claude Ginkgo vs Claude Monstera' : 'I’ll explain each of my moves here. I never give hints for yours.');
+  if (state.nextStarter && R().games) startCard(state.nextStarter); else startRoll();
+}
 resize(); requestAnimationFrame(animLoop);
 
 /* ---------- hooks for the hub ---------- */
@@ -1549,6 +2165,8 @@ GG.omokThumb = c => {
 };
 
 GG.drawPiece = (g, type, r) => { g.save(); g.lineJoin = 'round'; DRAW[type](g, r); g.restore(); };
+
+GG.omokEngine = { board, place, unplace, isDoubleThree, aiMove, N };
 })();
 </script>
 <script>
@@ -2326,8 +2944,9 @@ function drawSpinner() {
   sg.fillStyle = `rgba(${INK},.9)`; sg.font = '700 14px Gaegu, cursive'; sg.fillText(spinVal == null ? '·' : String(spinVal), cx, cy + 1);
   sg.beginPath(); sg.moveTo(cx - 8, 2); sg.lineTo(cx + 8, 2); sg.lineTo(cx, 18); sg.closePath(); sg.fillStyle = '#D9849A'; sg.fill(); sg.lineWidth = 1.2; sg.strokeStyle = `rgba(${INK},.7)`; sg.stroke();
 }
-function spinWheel(fast) {
-  const n = ri(1, 10), step = Math.PI * 2 / 10;
+function spinWheel(fast, forced) {
+  const n = forced || ri(1, 10), step = Math.PI * 2 / 10;
+  if (!forced) emit({ t: 'spin', n, fast: !!fast });
   const target = -(n - 1) * step, from = spinRot;
   let to = target - Math.PI * 2 * (fast ? 2 : 4);
   while (to > from - Math.PI * 2) to -= Math.PI * 2;
@@ -2351,7 +2970,15 @@ function kicker(p) {
   return `<div class="kick"><canvas data-k="${keyOf(p)}"></canvas>${esc(p.name)}${p.bot ? ' · bot' : ''}</div>`;
 }
 function paintKick() { MC.querySelectorAll('canvas[data-k]').forEach(c => iconTo(c, c.dataset.k, 30)); }
-function modal(p, title, html, choices, botPick, wide) {
+async function modal(p, title, html, choices, botPick, wide) {
+  const art = ART;
+  emit({ t: 'modal', pid: p ? p.id : -1, title, html: html || '', art: art || '', wide: !!wide, choices: choices.map(c => ({ label: c.label, note: c.note || '', disabled: !!c.disabled })) });
+  const v = await modalLocal(p, title, html, choices, botPick, wide);
+  const k = choices.findIndex((c, i) => (c.value !== undefined ? c.value : i) === v);
+  emit({ t: 'pick', k });
+  return v;
+}
+function modalLocal(p, title, html, choices, botPick, wide) {
   return new Promise(res => {
     MC.className = 'gl-card' + (wide ? ' wide' : '');
     MC.innerHTML = (p ? kicker(p) + artHtml() : '') + `<h3>${title}</h3><div class="body">${html || ''}</div><div class="choices"></div>`;
@@ -2417,7 +3044,7 @@ function score(p) {
 function log(t) { if (!G) return; G.log.unshift(t); if (G.log.length > 60) G.log.length = 60; }
 function money(p, k, why) { p.money += k; if (why) log(`${p.name}: ${why} ${k >= 0 ? '+' : ''}${fmt(k)}.`); fx(p, (k >= 0 ? '+' : '') + fmt(k), k >= 0); }
 function bloom(p, n, why) { p.blooms += n; if (why) log(`${p.name}: ${why} ${n >= 0 ? '+' : ''}${n} Bloom${Math.abs(n) === 1 ? '' : 's'}.`); fx(p, (n >= 0 ? '+' : '') + n + ' ✿', n >= 0); }
-function save() { try { if (G && !G.over) localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) {} }
+function save() { try { if (G && !G.over && !G.online) localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
 function loadSave() { try { const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 
@@ -2429,7 +3056,8 @@ function renderPlayers() {
     d.className = 'pl' + (i === G.turn && !G.over ? ' cur' : '') + (p.retired ? ' done' : '');
     const fam = [p.spouse ? 'married' : 'single', p.kids ? p.kids + (p.kids === 1 ? ' kid' : ' kids') : '', p.pets.length ? p.pets.length + (p.pets.length === 1 ? ' pet' : ' pets') : ''].filter(Boolean).join(' · ');
     const job = p.career ? `${p.career} ${fmt(p.salary)}` : (p.student ? 'student' : 'no job yet');
-    d.innerHTML = `<canvas></canvas><div><div class="nm">${esc(p.name)}${p.bot ? '<small>bot</small>' : ''}</div>
+    const net = G.online && !p.bot ? `<small class="${ONL && ONL.presence[p.owner] ? 'on' : 'off'}">${p.owner === NET.key ? 'you' : ONL && ONL.presence[p.owner] ? (p.away ? 'back soon' : 'online') : (p.away ? 'away · Claude playing' : 'offline')}</small>` : '';
+    d.innerHTML = `<canvas></canvas><div><div class="nm">${esc(p.name)}${p.bot ? '<small>bot</small>' : ''}${net}</div>
       <div class="sub">${fmt(p.money)} cash${stockVal(p) ? ' · ' + fmt(stockVal(p)) + ' stocks ' + gainHtml(stockVal(p) - stockCost(p), stockCost(p)) : ''}<br>${job} · ${fam}${p.home ? ' · ' + p.home.name.toLowerCase() : ''}${p.retired ? ' · retired' : ''}</div></div>
       <div class="bl">${s.total}<span>Blooms</span></div>`;
     iconTo(d.querySelector('canvas'), keyOf(p), 36); box.appendChild(d);
@@ -2572,6 +3200,13 @@ async function doCasino(p) {
     const r = playCasino(p, game, bet, ri(0, 3));
     return info(p, 'Lucky Clover Casino', `<p>${r.text}</p><p class="result">${r.net >= 0 ? '+' : ''}${fmt(r.net)}</p>`);
   }
+  emit({ t: 'modal', pid: p.id, title: 'Lucky Clover Casino', html: `<p>${esc(p.name)} is inside the casino…</p>`, art: 'K', wide: false, choices: [] });
+  const first = G.log[0];
+  await casinoHuman(p);
+  emit({ t: 'close' });
+  if (G.log[0] !== first) { emit({ t: 'modal', pid: p.id, title: 'Casino result', html: `<p>${esc(G.log[0])}</p>`, art: 'K', wide: false, choices: [{ label: 'OK', note: '' }] }); emit({ t: 'pick', k: 0 }); }
+}
+function casinoHuman(p) {
   return new Promise(res => {
     let game = 'coin', bet = 5, color = 0, played = false;
     const games = { coin: ['Coin toss', '50% chance. Win your bet.'], wheel: ['Petal wheel', 'Pick 1 of 4 colors. Win 3× your bet.'], jackpot: ['Clover jackpot', '1 in 10 chance. Win 8× your bet.'] };
@@ -2753,23 +3388,34 @@ function marketRound() {
 /* ---------- turn flow ---------- */
 let spinWait = null, busy = false;
 $('gl-spin').addEventListener('click', () => { if (spinWait) { const f = spinWait; spinWait = null; setBtns(false); f(); } });
-$('gl-market').addEventListener('click', async () => { if (!spinWait) return; setBtns(false); await openMarket(G.players[G.turn]); setBtns(true); renderAll(); });
+$('gl-market').addEventListener('click', async () => { if (!spinWait) return; setBtns(false); emit({ t: 'status', text: `${G.players[G.turn].name} is trading stocks…` }); await openMarket(G.players[G.turn]); setBtns(true); renderAll(); });
 function setBtns(on) { $('gl-spin').disabled = !on; $('gl-market').disabled = !on; }
-async function moveBy(p, n) {
+function walkPath(p, n) {
+  const path = []; let pos = p.pos;
   for (let step = 1; step <= n; step++) {
-    const s = SP[p.pos];
-    const nx = s.next.length > 1 ? s.next[p.route[p.pos] || 0] : s.next[0];
+    const sp = SP[pos], nx = sp.next.length > 1 ? sp.next[p.route[pos] || 0] : sp.next[0];
     if (nx === undefined) break;
-    const from = p.pos, t0 = performance.now(), dur = PACE[pace].hop;
-    renderTurn(`Spun ${n} · step ${step} of ${n}`);
+    path.push(nx); pos = nx;
+    if (TYPES[SP[nx].type].stop) break;
+  }
+  return path;
+}
+async function hopAlong(p, path, n, onStep) {
+  for (let i = 0; i < path.length; i++) {
+    const from = p.pos, nx = path[i], t0 = performance.now(), dur = PACE[pace].hop;
+    renderTurn(`Spun ${n} · step ${i + 1} of ${n}`);
     await new Promise(res => { const f = () => { const k = Math.min(1, (performance.now() - t0) / dur); const [ex, ey] = edgePoint(from, nx, k); anim = { pid: p.id, x: ex, y: ey - Math.sin(k * Math.PI) * 20 }; if (k < 1) requestAnimationFrame(f); else res(); }; f(); });
     p.pos = nx; anim = null; cam.tx = SP[nx].x; cam.ty = SP[nx].y;
-    const T = SP[nx].type;
-    if (T === 'P' && step < n) { payday(p, false); renderPlayers(); }
-    if (TYPES[T].stop) { renderTurn(`Stopped at ${SP[nx].label || TYPES[T].n}.`); break; }
+    if (onStep) onStep(nx, i === path.length - 1);
+    if (TYPES[SP[nx].type].stop) renderTurn(`Stopped at ${SP[nx].label || TYPES[SP[nx].type].n}.`);
   }
   anim = null;
   await sleep(PACE[pace].land);
+}
+async function moveBy(p, n) {
+  const path = walkPath(p, n);
+  emit({ t: 'move', pid: p.id, n, path });
+  await hopAlong(p, path, n, (nx, last) => { if (SP[nx].type === 'P' && !last) { payday(p, false); renderPlayers(); } });
 }
 async function land(p) {
   const s = SP[p.pos], T = s.type;
@@ -2793,11 +3439,14 @@ async function land(p) {
 }
 async function turn() {
   if (!G || G.over || busy) return;
-  busy = true;
+  if (G.online && !iControl()) return;
+  busy = true; acting = !!G.online;
   const myG = G, p = G.players[G.turn];
+  const tempBot = G.online && !p.bot && p.away; if (tempBot) { p.bot = true; p.tempBot = true; }
   const dead = () => G !== myG || G.over;
   const many = G.players.filter(q => !q.bot).length > 1;
-  renderAll(p.bot ? 'Claude is taking a turn…' : (many ? `${p.name}, it’s your turn. ` : '') + 'Trade stocks if you like, then spin.');
+  const startMsg = p.tempBot ? `${p.name} is away, so Claude plays this turn for them…` : p.bot ? 'Claude is taking a turn…' : (G.online ? 'Your turn! Trade stocks if you like, then spin.' : (many ? `${p.name}, it’s your turn. ` : '') + 'Trade stocks if you like, then spin.');
+  renderAll(startMsg); emit({ t: 'status', text: p.tempBot ? startMsg : p.bot ? 'Claude is taking a turn…' : `${p.name} is taking their turn…` });
   follow(p);
   save();
   if (SP[p.pos].fork && p.route[p.pos] === undefined) { await doFork(p, SP[p.pos]); if (dead()) return; renderAll(); }
@@ -2808,16 +3457,19 @@ async function turn() {
   await moveBy(p, n); if (dead()) return;
   renderAll(); await land(p); if (dead()) return;
   renderAll();
-  busy = false; nextTurn();
+  if (p.tempBot) { p.bot = false; delete p.tempBot; }
+  busy = false; acting = false; nextTurn();
 }
 function nextTurn() {
   if (G.players.every(p => p.retired)) return finish();
   let i = G.turn;
   do { i = (i + 1) % G.players.length; if (i === 0) { G.round++; marketRound(); } } while (G.players[i].retired);
   G.turn = i; save(); renderAll();
+  if (G.online) { pushState(); setTimeout(maybeAct, 250); return; }
   setTimeout(turn, G.players[i].bot ? 300 : 150);
 }
 async function finish() {
+  if (G.online) { if (!G.over) { G.over = true; pushState(); } return finishOnline(); }
   G.over = true; ART = null; clearSave(); renderAll('Everyone has retired.');
   const rows = G.players.map(p => ({ p, s: score(p) })).sort((a, b) => b.s.total - a.s.total);
   const top = rows[0].s.total, winners = rows.filter(r => r.s.total === top).map(r => r.p.name);
@@ -2876,7 +3528,7 @@ function startGame(list) {
   newGame(list); showGame(); setTimeout(turn, 400);
 }
 function showSetup() {
-  $('gl-game').hidden = true; $('gl-setup').hidden = false; MB.hidden = true; $('view-life').classList.remove('playing');
+  $('gl-game').hidden = true; $('gl-lobby').hidden = true; $('gl-setup').hidden = false; MB.hidden = true; $('view-life').classList.remove('playing');
   if (!seats.length) seats = defaultSeats();
   renderSeats();
   const sv = loadSave();
@@ -2884,7 +3536,7 @@ function showSetup() {
   if (sv) $('gl-resume-txt').textContent = `You have a game in progress: round ${sv.round}, ${sv.players.length} players (${sv.players.map(p => p.name).join(', ')}).`;
 }
 function showGame() {
-  $('gl-setup').hidden = true; $('gl-game').hidden = false; $('view-life').classList.add('playing'); window.scrollTo(0, 0);
+  $('gl-setup').hidden = true; $('gl-lobby').hidden = true; $('gl-quit').textContent = G && G.online ? 'Leave room' : 'End this game'; $('gl-game').hidden = false; $('view-life').classList.add('playing'); window.scrollTo(0, 0);
   requestAnimationFrame(() => { sizeBoard(); renderAll(); drawSpinner(); follow(G.players[G.turn], false); });
 }
 $('gl-continue').addEventListener('click', () => {
@@ -2899,15 +3551,268 @@ $('gl-quit').addEventListener('click', () => {
   const b = $('gl-quit');
   if (!quitArmed) { b.textContent = 'Tap again to end it'; quitArmed = setTimeout(() => { quitArmed = 0; b.textContent = 'End this game'; }, 3000); return; }
   clearTimeout(quitArmed); quitArmed = 0; b.textContent = 'End this game';
+  if (G && G.online) { leaveLifeRoom(true); return; }
   G.over = true; clearSave(); spinWait = null; busy = false; MB.hidden = true; showSetup();
 });
 new ResizeObserver(() => { if (!$('gl-game').hidden && G) { sizeBoard(); drawSpinner(); } }).observe($('gl-stage'));
 renderLegend(); drawSpinner(); requestAnimationFrame(loop);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!$('gl-game').hidden && G) sizeBoard(); drawSpinner(); });
 
+/* ---------- online play (Firebase rooms) ---------- */
+let ONL = null, acting = false;
+const onlineOK = () => !!(window.NET && NET.available());
+const rref = sub => NET.ref(`rooms/${ONL.code}/${sub}`);
+function emit(ev) { if (!(G && G.online && acting && ONL && ONL.code)) return; try { rref('ev').push(Object.assign({ s: G.seq }, ev)); } catch (e) {} }
+function memberList() { return Object.entries(ONL ? ONL.members : {}).map(([k, v]) => Object.assign({ key: k }, v)).sort((a, b) => (a.joined || 0) - (b.joined || 0)); }
+function actingHost() {
+  if (!ONL) return null;
+  if (ONL.presence[ONL.host]) return ONL.host;
+  const m = memberList().find(x => ONL.presence[x.key]);
+  return m ? m.key : ONL.host;
+}
+function controllerOf(p) {
+  if (p.bot || p.away) return actingHost();
+  return ONL.presence[p.owner] ? p.owner : null;
+}
+function iControl() { return !!(G && ONL && controllerOf(G.players[G.turn]) === NET.key); }
+function pushState() { if (!(G && G.online && ONL)) return; G.seq = (G.seq || 0) + 1; ONL.seq = G.seq; rref('state').set(JSON.stringify(G)); }
+
+/* after a state change: play if it's mine, otherwise show who we're waiting for */
+let awayTimer = 0, awayFor = null;
+function maybeAct() {
+  if (!(G && G.online && ONL) || G.over || busy) return;
+  const p = G.players[G.turn], ctrl = controllerOf(p);
+  // a returning player takes their seat back from the stand-in bot
+  if (actingHost() === NET.key && p.away && ONL.presence[p.owner]) { p.away = false; log(`${p.name} is back!`); pushState(); renderAll(); }
+  if (controllerOf(p) === NET.key) { clearTimeout(awayTimer); awayFor = null; setBtns(false); turn(); return; }
+  setBtns(false);
+  if (ctrl) { renderTurn(p.bot ? 'Claude is taking a turn…' : `Waiting for ${p.name} to take their turn…`); return; }
+  // the player whose turn it is has dropped: wait 60s, then the host's device plays for them
+  renderTurn(`Waiting for ${p.name} to reconnect… Claude will play for them in 60 seconds.`);
+  if (actingHost() === NET.key && awayFor !== p.id + ':' + G.seq) {
+    clearTimeout(awayTimer); awayFor = p.id + ':' + G.seq;
+    awayTimer = setTimeout(() => {
+      if (!(G && G.online) || G.over) return;
+      const q = G.players[G.turn];
+      if (q.id === p.id && !ONL.presence[q.owner] && !q.away) { q.away = true; log(`${q.name} is away, so Claude plays for them until they’re back.`); pushState(); renderAll(); maybeAct(); }
+    }, 60000);
+  }
+}
+
+/* ---------- watching other devices' turns ---------- */
+let evQueue = [], evBusy = false;
+function onEvent(k, ev) {
+  if (!ev || !G || !G.online || acting) return;
+  if (ev.s !== G.seq) return;
+  if (ONL.seenEv[k]) return; ONL.seenEv[k] = 1;
+  evQueue.push(ev); if (!evBusy) runEvents();
+}
+async function runEvents() {
+  evBusy = true;
+  while (evQueue.length) {
+    const ev = evQueue.shift();
+    try { await playEvent(ev); } catch (e) {}
+  }
+  evBusy = false;
+}
+let mirrorBox = null;
+async function playEvent(ev) {
+  const p = ev.pid >= 0 && G ? G.players[ev.pid] : null;
+  if (ev.t === 'status') renderTurn(ev.text);
+  else if (ev.t === 'spin') { renderTurn('Spinning…'); await spinWheel(ev.fast, ev.n); }
+  else if (ev.t === 'move' && p) { cam.manual = false; await hopAlong(p, ev.path || [], ev.n); renderPlayers(); }
+  else if (ev.t === 'modal') {
+    ART = ev.art || null;
+    MC.className = 'gl-card' + (ev.wide ? ' wide' : '');
+    const who = p ? `<p class="mirror-note">${esc(p.name)}${p.bot ? '' : ev.choices.length > 1 ? ' is choosing…' : ''}</p>` : '';
+    MC.innerHTML = (p ? kicker(p) + artHtml() : '') + `<h3>${ev.title}</h3><div class="body">${ev.html || ''}</div>${ev.choices.length > 1 && p && !p.bot ? who : ''}<div class="choices"></div>`;
+    paintKick(); if (p) paintArt(); MC.querySelectorAll('.body canvas[data-logo]').forEach(c => logoTo(c, c.dataset.logo, 34));
+    mirrorBox = MC.querySelector('.choices');
+    (ev.choices || []).forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.className = 'choice'; b.disabled = true; b.innerHTML = `<b>${c.label}</b>${c.note ? `<span>${c.note}</span>` : ''}`; mirrorBox.appendChild(b); });
+    MB.hidden = false;
+  }
+  else if (ev.t === 'pick') {
+    if (mirrorBox && mirrorBox.children[ev.k]) mirrorBox.children[ev.k].classList.add('picked');
+    await sleep(900 * PACE[pace].card); MB.hidden = true; mirrorBox = null;
+  }
+  else if (ev.t === 'close') { MB.hidden = true; mirrorBox = null; }
+}
+
+/* ---------- room state from the server ---------- */
+function onRoomState(str) {
+  if (!str || !ONL) return;
+  let S; try { S = JSON.parse(str); } catch (e) { return; }
+  if (G && G.online && G.room === ONL.code && (S.seq || 0) <= (G.seq || 0)) return;
+  const first = !(G && G.online && G.room === ONL.code);
+  if (acting) return; // my own turn is in progress; my write will follow
+  G = S; ONL.seq = G.seq; evQueue = []; MB.hidden = true;
+  if (first || $('gl-game').hidden) { $('gl-lobby').hidden = true; showGame(); }
+  renderAll();
+  follow(G.players[G.turn]);
+  if (G.over) { finishOnline(); return; }
+  setTimeout(maybeAct, 200);
+}
+function onPresence(v) {
+  if (!ONL) return;
+  ONL.presence = v || {};
+  if (!$('gl-lobby').hidden) renderLobby();
+  if (G && G.online && !G.over) { renderPlayers(); if (!busy && !evBusy) maybeAct(); }
+}
+function onMembers(v) { if (!ONL) return; ONL.members = v || {}; if (!$('gl-lobby').hidden) renderLobby(); }
+function onMeta(v) {
+  if (!ONL) return;
+  ONL.meta = v || {};
+  if (v && v.host) ONL.host = v.host;
+  if (!$('gl-lobby').hidden) renderLobby();
+}
+
+/* ---------- lobby ---------- */
+const lsg = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lss = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function myName() { return ($('ol-name').value || '').trim().slice(0, 18) || 'Player'; }
+function onlineMsg(t) { $('ol-msg').textContent = t || ''; }
+function setOnlineBusy(b) { ['ol-host', 'ol-join'].forEach(id => $(id).disabled = b); }
+function freeCritter(taken, want) { if (want && !taken.has(want)) return want; const c = CRITTERS.find(c => !taken.has(c.id)); return c ? c.id : 'bee'; }
+async function enterLifeRoom(code, host) {
+  leaveLifeRoom(false);
+  ONL = { code, host, members: {}, presence: {}, meta: {}, unsubs: [], seenEv: {}, seq: 0 };
+  ONL.unsubs.push(rref('presence/' + NET.key).keepAlive(true));
+  ONL.unsubs.push(rref('meta').on(onMeta));
+  ONL.unsubs.push(rref('members').on(onMembers));
+  ONL.unsubs.push(rref('presence').on(onPresence));
+  ONL.unsubs.push(rref('state').on(onRoomState));
+  ONL.unsubs.push(rref('ev').onChild(onEvent));
+  try { history.replaceState(null, '', location.pathname + location.search + '#life-room-' + code); } catch (e) {}
+  $('gl-setup').hidden = true; $('gl-game').hidden = true; $('gl-lobby').hidden = false; $('view-life').classList.remove('playing');
+  $('gl-lob-code').textContent = code; $('gl-lob-link').textContent = NET.link('life', code);
+  renderLobby();
+}
+function leaveLifeRoom(explicit) {
+  if (!ONL) return;
+  const code = ONL.code;
+  clearTimeout(awayTimer); awayFor = null;
+  ONL.unsubs.forEach(f => { try { f(); } catch (e) {} });
+  if (explicit) { try { NET.ref(`rooms/${code}/members/${NET.key}`).remove(); } catch (e) {} }
+  ONL = null; acting = false; busy = false; spinWait = null; evQueue = []; MB.hidden = true;
+  if (G && G.online) G = null;
+  if (explicit) { try { history.replaceState(null, '', location.pathname + location.search + '#life'); } catch (e) {} showSetup(); }
+}
+async function hostLifeRoom() {
+  onlineMsg(''); setOnlineBusy(true);
+  try {
+    await NET.init();
+    const code = await NET.newCode('life');
+    lss('life-online-name', myName()); lss('life-online-critter', $('ol-critter').value);
+    await NET.ref(`rooms/${code}/meta`).set({ game: 'life', host: NET.key, created: Date.now(), bots: 0, status: 'lobby' });
+    await NET.ref(`rooms/${code}/members/${NET.key}`).set({ name: myName(), critter: $('ol-critter').value, joined: Date.now() });
+    await enterLifeRoom(code, NET.key);
+  } catch (e) { onlineMsg('Couldn’t reach the garden server. Check your connection and try again.'); }
+  setOnlineBusy(false);
+}
+async function joinLifeRoom(raw) {
+  const code = NET.cleanCode(raw || $('ol-code').value);
+  if (!code) { onlineMsg('Type the room code your friend sent you.'); return; }
+  onlineMsg(''); setOnlineBusy(true);
+  try {
+    await NET.init();
+    const meta = await NET.ref(`rooms/${code}/meta`).get();
+    if (!meta) { onlineMsg(`No room called ${code}. Check the code and try again.`); setOnlineBusy(false); return; }
+    if (meta.game !== 'life') { onlineMsg(`${code} is an Omok room. Open Omok Garden to join it.`); setOnlineBusy(false); return; }
+    const members = (await NET.ref(`rooms/${code}/members`).get()) || {};
+    const mine = members[NET.key];
+    if (!mine) {
+      if (meta.status === 'play') { onlineMsg('That game has already started. Ask the host to start a new room.'); setOnlineBusy(false); return; }
+      if (Object.keys(members).length + (meta.bots || 0) >= 8) { onlineMsg('This room is full (8 players).'); setOnlineBusy(false); return; }
+      const taken = new Set(Object.values(members).map(m => m.critter));
+      const crit = freeCritter(taken, $('ol-critter').value);
+      if (crit !== $('ol-critter').value) onlineMsg(`Someone already has that critter, so you’re the ${CRITTERS.find(c => c.id === crit).name.toLowerCase()}.`);
+      lss('life-online-name', myName());
+      await NET.ref(`rooms/${code}/members/${NET.key}`).set({ name: myName(), critter: crit, joined: Date.now() });
+    }
+    await enterLifeRoom(code, meta.host);
+  } catch (e) { onlineMsg('Couldn’t reach the garden server. Check your connection and try again.'); }
+  setOnlineBusy(false);
+}
+function renderLobby() {
+  if (!ONL) return;
+  const host = ONL.host === NET.key, bots = (ONL.meta && ONL.meta.bots) || 0, ms = memberList();
+  const box = $('gl-lob-list'); box.innerHTML = '';
+  ms.forEach(m => {
+    const d = document.createElement('div'); d.className = 'pl';
+    const on = !!ONL.presence[m.key];
+    d.innerHTML = `<canvas></canvas><div><div class="nm">${esc(m.name)}${m.key === ONL.host ? '<small>host</small>' : ''}${m.key === NET.key ? '<small>you</small>' : ''}</div><div class="sub">${CRITTERS.find(c => c.id === m.critter)?.name || ''}</div></div><div class="dot ${on ? 'on' : 'off'}">${on ? 'online' : 'offline'}</div>`;
+    iconTo(d.querySelector('canvas'), m.critter || 'bee', 36); box.appendChild(d);
+  });
+  for (let b = 0; b < bots; b++) {
+    const d = document.createElement('div'); d.className = 'pl';
+    d.innerHTML = `<canvas></canvas><div><div class="nm">${BOTNAMES[b % BOTNAMES.length]}<small>bot</small></div><div class="sub">runs on the host’s device</div></div><div></div>`;
+    iconTo(d.querySelector('canvas'), 'cat:' + b, 36); box.appendChild(d);
+  }
+  const total = ms.length + bots;
+  $('gl-lob-count').textContent = `${total} of 8 players`;
+  $('gl-lob-addbot').hidden = !host; $('gl-lob-rmbot').hidden = !host; $('gl-lob-start').hidden = !host;
+  $('gl-lob-addbot').disabled = total >= 8; $('gl-lob-rmbot').disabled = bots < 1;
+  $('gl-lob-start').disabled = total < 2;
+  $('gl-lob-wait').textContent = host ? (total < 2 ? 'Share the code or link. You need at least 2 players, or add a Claude bot.' : 'Everyone in? Start the game when you’re ready.') : 'Waiting for the host to start the game…';
+}
+async function startOnlineGame() {
+  if (!ONL || ONL.host !== NET.key) return;
+  const ms = memberList(), bots = (ONL.meta && ONL.meta.bots) || 0;
+  if (ms.length + bots < 2) return;
+  const taken = new Set();
+  const list = ms.map(m => { const c = freeCritter(taken, m.critter); taken.add(c); return { name: m.name, bot: false, critter: c, owner: m.key }; });
+  for (let b = 0; b < bots; b++) list.push({ name: BOTNAMES[b % BOTNAMES.length], bot: true, color: b, owner: NET.key });
+  newGame(list);
+  G.players.forEach((p, i) => { p.owner = list[i].owner; });
+  G.online = true; G.room = ONL.code; G.seq = 0;
+  log(`Online game in room ${ONL.code}. ${G.players.map(p => p.name).join(', ')}.`);
+  await rref('ev').remove();
+  await rref('meta').update({ status: 'play' });
+  pushState();
+  $('gl-lobby').hidden = true; showGame(); renderAll();
+  setTimeout(maybeAct, 400);
+}
+async function finishOnline() {
+  busy = false; acting = false; setBtns(false); ART = null;
+  renderAll('Everyone has retired.');
+  const rows = G.players.map(p => ({ p, s: score(p) })).sort((a, b) => b.s.total - a.s.total);
+  const top = rows[0].s.total, winners = rows.filter(r => r.s.total === top).map(r => r.p.name);
+  const table = `<div class="res-wrap"><table class="res"><thead><tr><th>Player</th><th>Cash</th><th>Family</th><th>Home</th><th>Career</th><th>Life</th><th>Retire</th><th>Blooms</th></tr></thead><tbody>
+    ${rows.map(r => `<tr class="${r.s.total === top ? 'win' : ''}"><td>${esc(r.p.name)}</td><td>${r.s.cashB}<br><small>${fmt(r.s.cash)}</small></td><td>${r.s.fam}</td><td>${r.s.home}</td><td>${r.s.career}</td><td>${r.s.life}</td><td>${r.s.retire}</td><td class="tot">${r.s.total}</td></tr>`).join('')}</tbody></table></div>`;
+  const host = ONL && ONL.host === NET.key;
+  const k = await modalLocal(null, `${winners.join(' & ')} ${winners.length > 1 ? 'tie' : 'wins'} with ${top} Blooms!`, `<p>What a garden life!</p>${table}`,
+    host ? [{ label: 'Back to the room', note: 'Same code; start a new game when everyone’s ready.' }, { label: 'Leave the room' }] : [{ label: 'Back to the room', note: 'Wait there for the host to start another game.' }, { label: 'Leave the room' }], undefined, true);
+  if (k === 0 && ONL) {
+    const code = ONL.code, h = ONL.host;
+    if (host) { await NET.ref(`rooms/${code}/meta`).update({ status: 'lobby' }); await NET.ref(`rooms/${code}/state`).remove(); }
+    G = null; await enterLifeRoom(code, h);
+  } else leaveLifeRoom(true);
+}
+(function initOnlineUI() {
+  const ok = onlineOK();
+  $('gl-online').hidden = false;
+  $('ol-name').value = lsg('life-online-name') || '';
+  const sel = $('ol-critter'); sel.innerHTML = CRITTERS.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value = lsg('life-online-critter') || 'bee';
+  const paint = () => iconTo($('ol-icon'), sel.value, 44); paint(); sel.addEventListener('change', paint);
+  if (!ok) { $('ol-form').hidden = true; $('ol-note').hidden = false; return; }
+  $('ol-host').addEventListener('click', hostLifeRoom);
+  $('ol-join').addEventListener('click', () => joinLifeRoom());
+  $('ol-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinLifeRoom(); });
+  $('gl-lob-copy').addEventListener('click', () => {
+    const t = $('gl-lob-link').textContent;
+    const done = () => { $('gl-lob-copy').textContent = 'Copied!'; setTimeout(() => $('gl-lob-copy').textContent = 'Copy link', 1600); };
+    try { navigator.clipboard.writeText(t).then(done, () => { const r = document.createRange(); r.selectNodeContents($('gl-lob-link')); getSelection().removeAllRanges(); getSelection().addRange(r); }); } catch (e) {}
+  });
+  $('gl-lob-addbot').addEventListener('click', () => { if (ONL) rref('meta').update({ bots: Math.min(7, ((ONL.meta && ONL.meta.bots) || 0) + 1) }); });
+  $('gl-lob-rmbot').addEventListener('click', () => { if (ONL) rref('meta').update({ bots: Math.max(0, ((ONL.meta && ONL.meta.bots) || 0) - 1) }); });
+  $('gl-lob-start').addEventListener('click', startOnlineGame);
+  $('gl-lob-leave').addEventListener('click', () => leaveLifeRoom(true));
+})();
+
 /* ---------- hooks for the hub ---------- */
 window.GG = window.GG || {};
-GG.lifeShow = () => { if ($('gl-game').hidden) showSetup(); else { sizeBoard(); if (G && !busy && !G.over && !spinWait) setTimeout(turn, 200); } };
+GG.lifeShow = () => { const rc = window.NET && NET.available() && NET.roomFromHash('life'); if (rc && !(ONL && ONL.code === rc)) { showSetup(); $('ol-code').value = rc; if ((lsg('life-online-name') || '').trim()) joinLifeRoom(rc); else { onlineMsg(`You’re joining room ${rc}. Type your name, pick a critter, then tap Join.`); $('ol-name').focus(); $('gl-online').scrollIntoView({ block: 'center' }); } return; } if (ONL && $('gl-game').hidden) return; if ($('gl-game').hidden) showSetup(); else { sizeBoard(); if (G && !busy && !G.over && !spinWait) setTimeout(turn, 200); } };
 GG.lifeSummary = () => { const sv = loadSave(); return sv ? `Game in progress · round ${sv.round}` : ''; };
 GG.lifeThumb = c => {
   const g = c.getContext('2d'), W = c.width, H = c.height, k = W / 1000;
@@ -2929,7 +3834,7 @@ GG.lifeThumb = c => {
     try { document.getElementById('lifeSummary').textContent = GG.lifeSummary(); } catch (e) {}
   }
   function route() {
-    let h = location.hash.replace('#', ''); if (!(h in views)) h = '';
+    let h = location.hash.replace('#', ''); if (/^life-room-/i.test(h)) h = 'life'; else if (/^omok-room-/i.test(h)) h = 'omok'; if (!(h in views)) h = '';
     Object.entries(views).forEach(([k, id]) => { document.getElementById(id).hidden = k !== h; });
     window.scrollTo(0, 0);
     if (h === '') paintHome();

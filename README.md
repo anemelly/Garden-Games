@@ -1,4 +1,4 @@
-# Garden Games (V1.1)
+# Garden Games (V2.1)
 
 Little hand-drawn pastel games, made with Claude.
 
