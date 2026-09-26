@@ -24,7 +24,7 @@
 </style>
 </head>
 <body>
-<title>Garden Games_V2.2</title>
+<title>Garden Games_V2.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap">
@@ -457,9 +457,9 @@
   .lob-share code{font-size:12.5px;background:var(--paper-2);border:1px dashed var(--line);border-radius:8px;padding:5px 8px;overflow-wrap:anywhere;user-select:all}
   .lob-count{margin:4px 0;font-family:var(--display);font-size:18px}
   .lob-wait{font-size:14px;color:var(--ink-soft);margin:10px 0 0}
-  .pl .dot{font-size:12px;padding:1px 8px;border-radius:999px}
-  .pl .dot.on,.pl small.on{background:rgba(78,154,107,.16);color:#3F7F58}
-  .pl .dot.off,.pl small.off{background:rgba(201,101,127,.14);color:#A8506A}
+  .pl .pres{font-size:12px;line-height:1.4;padding:2px 10px;border-radius:999px;white-space:nowrap;width:auto;height:auto;border:0;margin:0}
+  .pl .pres.on,.pl small.on{background:rgba(78,154,107,.16);color:#3F7F58}
+  .pl .pres.off,.pl small.off{background:rgba(201,101,127,.14);color:#A8506A}
   .mirror-note{margin:0;font-family:var(--display);font-size:18px;color:var(--rose-deep)}
 </style>
 
@@ -468,7 +468,7 @@
     <header class="home-hero">
       <div>
         <p class="eyebrow">a little garden of games</p>
-        <h1>Garden Games<span class="v">_V2.2</span></h1>
+        <h1>Garden Games<span class="v">_V2.3</span></h1>
         <p class="lede">Pick a game. Claude is always ready to play, and everything you do is saved on this device.</p>
       </div>
       <svg class="sprig" viewBox="0 0 132 90" aria-hidden="true">
@@ -2923,6 +2923,8 @@ function paintPace() { document.querySelectorAll('#gl-pace button').forEach(b =>
 document.querySelectorAll('#gl-pace button').forEach(b => b.addEventListener('click', () => { pace = b.dataset.p; try { localStorage.setItem('garden-life-speed', pace); } catch (e) {} paintPace(); }));
 paintPace();
 
+/* animation step that keeps going when the tab is hidden (rAF pauses there) */
+function nextFrame(fn) { let done = false; const go = () => { if (done) return; done = true; fn(); }; requestAnimationFrame(go); setTimeout(go, 60); }
 /* ---------- spinner ---------- */
 const sp = $('gl-spinner'), sg = sp.getContext('2d');
 let spinRot = 0, spinVal = null;
@@ -2955,7 +2957,7 @@ function spinWheel(fast, forced) {
     const f = () => {
       const a = Math.min(1, (performance.now() - t0) / dur), e = 1 - Math.pow(1 - a, 3);
       spinRot = from + (to - from) * e; drawSpinner();
-      if (a < 1) requestAnimationFrame(f); else { spinRot = target; spinVal = n; drawSpinner(); res(n); }
+      if (a < 1) nextFrame(f); else { spinRot = target; spinVal = n; drawSpinner(); res(n); }
     };
     f();
   });
@@ -3407,7 +3409,7 @@ async function hopAlong(p, path, n, onStep) {
   for (let i = 0; i < path.length; i++) {
     const from = p.pos, nx = path[i], t0 = performance.now(), dur = PACE[pace].hop;
     renderTurn(`Spun ${n} · step ${i + 1} of ${n}`);
-    await new Promise(res => { const f = () => { const k = Math.min(1, (performance.now() - t0) / dur); const [ex, ey] = edgePoint(from, nx, k); anim = { pid: p.id, x: ex, y: ey - Math.sin(k * Math.PI) * 20 }; if (k < 1) requestAnimationFrame(f); else res(); }; f(); });
+    await new Promise(res => { const f = () => { const k = Math.min(1, (performance.now() - t0) / dur); const [ex, ey] = edgePoint(from, nx, k); anim = { pid: p.id, x: ex, y: ey - Math.sin(k * Math.PI) * 20 }; if (k < 1) nextFrame(f); else res(); }; f(); });
     p.pos = nx; anim = null; cam.tx = SP[nx].x; cam.ty = SP[nx].y;
     if (onStep) onStep(nx, i === path.length - 1);
     if (TYPES[SP[nx].type].stop) renderTurn(`Stopped at ${SP[nx].label || TYPES[SP[nx].type].n}.`);
@@ -3746,7 +3748,7 @@ function renderLobby() {
   ms.forEach(m => {
     const d = document.createElement('div'); d.className = 'pl';
     const on = !!ONL.presence[m.key];
-    d.innerHTML = `<canvas></canvas><div><div class="nm">${esc(m.name)}${m.key === ONL.host ? '<small>host</small>' : ''}${m.key === NET.key ? '<small>you</small>' : ''}</div><div class="sub">${CRITTERS.find(c => c.id === m.critter)?.name || ''}</div></div><div class="dot ${on ? 'on' : 'off'}">${on ? 'online' : 'offline'}</div>`;
+    d.innerHTML = `<canvas></canvas><div><div class="nm">${esc(m.name)}${m.key === ONL.host ? '<small>host</small>' : ''}${m.key === NET.key ? '<small>you</small>' : ''}</div><div class="sub">${CRITTERS.find(c => c.id === m.critter)?.name || ''}</div></div><div class="pres ${on ? 'on' : 'off'}">${on ? 'online' : 'offline'}</div>`;
     iconTo(d.querySelector('canvas'), m.critter || 'bee', 36); box.appendChild(d);
   });
   for (let b = 0; b < bots; b++) {
